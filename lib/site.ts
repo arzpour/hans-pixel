@@ -882,7 +882,7 @@ export function getPageMeta(pathname: string): { title: string; description: str
   if (route.section) {
     return {
       title: `${route.section.label} — ${SITE.name}`,
-      description: route.section.kicker,
+      description: route.section.kicker || "",
     };
   }
 
