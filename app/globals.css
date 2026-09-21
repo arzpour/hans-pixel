@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --text-label: 0.8125rem;
+  --text-body: 1rem;
+  --text-lead: 1.0625rem;
+  --text-rail: clamp(0.94rem, 0.55vw + 0.72rem, 1.06rem);
+  --text-sub: clamp(1.06rem, 0.7vw + 0.78rem, 1.28rem);
+  --text-title: clamp(1.5rem, 1.6vw + 0.7rem, 2.15rem);
+  --text-hero: clamp(1.22rem, 1.15vw + 0.85rem, 1.65rem);
+  --text-stat: clamp(1.25rem, 1.2vw + 0.7rem, 1.7rem);
+}
+
+@theme inline {
+  --color-background: #000000;
+  --color-foreground: #fafafa;
+  --color-accent: #e11d2e;
+  --color-on-accent: #ffffff;
+  --color-card: #0c0c0c;
+  --color-muted: #1a1a1a;
+  --color-muted-foreground: #d4d4d4;
+  --color-border: #3f3f46;
+  --color-ring: #ffffff;
+  --font-sans: var(--font-space);
+  --font-heading: var(--font-archivo);
+  --animate-kenburns: kenburns 32s ease-in-out infinite alternate;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}
+
+@keyframes kenburns {
+  from {
+    transform: scale(1.08) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.18) translate3d(-2.4%, 1.6%, 0);
+  }
+}
+
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.85'/%3E%3C/svg%3E");
+}
