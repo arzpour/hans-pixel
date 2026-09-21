@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { ContentPanel } from "@/components/content-panel";
+import { CursorFollower } from "@/components/cursor-follower";
 import { MotionBackground, sceneFromPath } from "@/components/motion-background";
 import { NavList } from "@/components/nav-list";
 import { SkipLink } from "@/components/skip-link";
@@ -196,6 +197,7 @@ export function Stage() {
     >
       <SkipLink />
       <MotionBackground paused={false} scene={scene} />
+      <CursorFollower />
 
       <header className="relative z-20 grid min-h-11 grid-cols-[1fr_auto_1fr] items-center gap-3">
         <div className="justify-self-start">
