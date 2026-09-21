@@ -28,12 +28,16 @@ export function ServiceBriefPanel({ brief }: { brief: ServiceBrief }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <section>
+      <section className="content-piece">
         <h2 className={cn(labelText, "mb-1.5")}>Describe</h2>
         <p className="max-w-[65ch] text-base leading-relaxed text-muted-foreground">{brief.describe}</p>
       </section>
 
-      <div className="grid min-h-[120px] max-w-md grid-cols-2 overflow-hidden border border-border" aria-hidden="true">
+      <div
+        data-content-media
+        className="content-piece grid min-h-[120px] max-w-md grid-cols-2 overflow-hidden border border-border"
+        aria-hidden="true"
+      >
         <div className="flex items-end bg-[linear-gradient(160deg,rgb(18_18_18_/_0.35),rgb(0_0_0_/_0.55)),url('/bg/photo.jpg')] bg-cover bg-center p-3 text-[length:var(--text-label)] uppercase tracking-[0.12em] text-muted-foreground">
           <span>{brief.beforeLabel}</span>
         </div>
@@ -41,11 +45,11 @@ export function ServiceBriefPanel({ brief }: { brief: ServiceBrief }) {
           <span>{brief.afterLabel}</span>
         </div>
       </div>
-      <p className={labelText}>
+      <p className={cn("content-piece", labelText)}>
         Before {brief.beforeLabel} · After {brief.afterLabel}
       </p>
 
-      <dl className="grid grid-cols-[repeat(3,max-content)] gap-3 gap-x-8 max-md:grid-cols-2 max-md:gap-x-4">
+      <dl className="content-piece grid grid-cols-[repeat(3,max-content)] gap-3 gap-x-8 max-md:grid-cols-2 max-md:gap-x-4">
         <div>
           <dt className={labelText}>Price</dt>
           <dd className="font-heading text-[length:var(--text-lead)] text-foreground max-md:whitespace-normal whitespace-nowrap">
@@ -69,11 +73,11 @@ export function ServiceBriefPanel({ brief }: { brief: ServiceBrief }) {
       </dl>
 
       {status === "sent" ? (
-        <p className="text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground" role="status">
+        <p className="content-piece text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground" role="status">
           Upload received: {fileName}. We will reply with a preview.
         </p>
       ) : (
-        <form className="flex max-w-md flex-col gap-2" onSubmit={onSubmit}>
+        <form className="content-piece flex max-w-md flex-col gap-2" onSubmit={onSubmit}>
           <label htmlFor={`${id}-file`} className={fieldLabel}>
             Upload
           </label>

@@ -82,8 +82,8 @@ export function Stage() {
     if (!reduced && state) {
       Flip.from(state, {
         targets: NAV_FLIP,
-        duration: 0.78,
-        ease: "expo.inOut",
+        duration: 1.05,
+        ease: "power2.inOut",
         absolute: true,
         prune: true,
         scale: false,
@@ -93,13 +93,13 @@ export function Stage() {
         onEnter: (elements) => {
           gsap.fromTo(
             elements,
-            { autoAlpha: 0, x: 36 },
+            { autoAlpha: 0, x: 48 },
             {
               autoAlpha: 1,
               x: 0,
-              duration: 0.62,
-              ease: "expo.out",
-              stagger: 0.035,
+              duration: 0.92,
+              ease: "power2.out",
+              stagger: 0.045,
               overwrite: "auto",
             },
           );
@@ -107,7 +107,8 @@ export function Stage() {
         onLeave: (elements) => {
           gsap.to(elements, {
             autoAlpha: 0,
-            duration: 0.28,
+            x: -16,
+            duration: 0.4,
             ease: "power2.in",
             overwrite: "auto",
           });
@@ -128,13 +129,13 @@ export function Stage() {
 
     gsap.fromTo(
       panel,
-      { autoAlpha: 0, x: 80 },
+      { autoAlpha: 0, x: 72 },
       {
         autoAlpha: 1,
         x: 0,
-        duration: 0.72,
-        ease: "expo.out",
-        delay: 0.06,
+        duration: 1.25,
+        ease: "power2.out",
+        delay: 0.16,
         overwrite: true,
       },
     );
@@ -142,15 +143,24 @@ export function Stage() {
     if (pieces.length) {
       gsap.fromTo(
         pieces,
-        { autoAlpha: 0, y: 16 },
+        {
+          autoAlpha: 0,
+          x: 56,
+          y: 10,
+          scale: (_index, target) =>
+            (target as HTMLElement).hasAttribute("data-content-media") ? 1.06 : 1,
+        },
         {
           autoAlpha: 1,
+          x: 0,
           y: 0,
-          duration: 0.52,
-          stagger: 0.045,
-          ease: "expo.out",
-          delay: 0.14,
+          scale: 1,
+          duration: 1.15,
+          stagger: 0.1,
+          ease: "power2.out",
+          delay: 0.28,
           overwrite: true,
+          transformOrigin: "center center",
         },
       );
     }
@@ -158,7 +168,7 @@ export function Stage() {
     return () => {
       gsap.killTweensOf([panel, pieces]);
       gsap.set(panel, { autoAlpha: 1, x: 0 });
-      if (pieces.length) gsap.set(pieces, { autoAlpha: 1, y: 0 });
+      if (pieces.length) gsap.set(pieces, { autoAlpha: 1, x: 0, y: 0, scale: 1 });
     };
   }, [pathname, reduced, content]);
 

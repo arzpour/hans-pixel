@@ -54,11 +54,11 @@ export function ContentPanel({ content }: { content: PageContent }) {
         }
         if (block.type === "cases") {
           return (
-            <ul key={index} className="content-piece flex flex-col gap-[18px]">
+            <ul key={index} className="flex flex-col gap-[18px]">
               {block.items.map((item, caseIndex) => (
                 <li
                   key={item.title}
-                  className="grid grid-cols-[48px_minmax(0,1fr)] gap-3 border-t border-border py-2 max-md:grid-cols-1"
+                  className="content-piece grid grid-cols-[48px_minmax(0,1fr)] gap-3 border-t border-border py-2 max-md:grid-cols-1"
                 >
                   <span className={cn(labelText, "max-md:hidden")} aria-hidden="true">
                     {String(caseIndex + 1).padStart(2, "0")}
@@ -79,18 +79,19 @@ export function ContentPanel({ content }: { content: PageContent }) {
         }
         if (block.type === "service") {
           return (
-            <div key={index} className="content-piece">
+            <div key={index}>
               <ServiceBriefPanel brief={block.brief} />
             </div>
           );
         }
         if (block.type === "shop") {
           return (
-            <ul key={index} className="content-piece flex flex-col gap-3.5">
+            <ul key={index} className="flex flex-col gap-3.5">
               {block.items.map((item) => (
                 <li
                   key={item.title}
-                  className="grid grid-cols-[92px_minmax(0,1fr)] items-center gap-3.5 border-t border-border pt-3 max-md:grid-cols-1"
+                  data-content-media
+                  className="content-piece grid grid-cols-[92px_minmax(0,1fr)] items-center gap-3.5 border-t border-border pt-3 max-md:grid-cols-1"
                 >
                   <div
                     className="h-[72px] w-[92px] bg-[linear-gradient(90deg,rgb(0_0_0_/_0.35),rgb(225_29_46_/_0.28)),url('/bg/shop.jpg')] bg-cover bg-center"
