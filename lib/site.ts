@@ -40,7 +40,7 @@ export const SITE = {
   description:
     "Hans Pixel edits photographs, films, and graphic work — with packages, presets, and a studio shop.",
   telegram: "https://t.me/hanspixel",
-  telegramLabel: "تلگرام با ما",
+  // telegramLabel: "تلگرام با ما",
 };
 
 function service(

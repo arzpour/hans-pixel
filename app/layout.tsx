@@ -22,6 +22,13 @@ export const metadata: Metadata = {
     template: `%s`,
   },
   description: SITE.description,
+  icons: {
+    icon: [
+      { url: "/hans-pixel-mark.png?v=hp-mark-1", type: "image/png", sizes: "64x64" },
+      { url: "/hans-pixel-mark.svg?v=hp-mark-1", type: "image/svg+xml" },
+    ],
+    apple: { url: "/hans-pixel-mark-180.png?v=hp-mark-1", sizes: "180x180", type: "image/png" },
+  },
 };
 
 export const viewport: Viewport = {

@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
@@ -31,8 +32,18 @@ function isTypingTarget(target: EventTarget | null) {
   );
 }
 
-function BrandMark() {
-  return <span className="size-3 bg-accent shadow-[6px_6px_0_0_var(--color-foreground)]" aria-hidden="true" />;
+function BrandLogo() {
+  return (
+    <Image
+      src="/logo-pixel.png"
+      alt={SITE.name}
+      width={1200}
+      height={171}
+      priority
+      unoptimized
+      className="h-7 w-auto max-w-[min(240px,46vw)] [image-rendering:pixelated] max-md:h-7"
+    />
+  );
 }
 
 export function Stage() {
@@ -229,16 +240,13 @@ export function Stage() {
           href="/"
           onClick={() => captureFlip()}
           className={cn(
-            "inline-flex min-h-11 items-center gap-2.5 justify-self-center text-foreground no-underline",
+            "inline-flex min-h-11 items-center justify-self-center text-foreground no-underline",
             focusRing,
           )}
         >
-          <BrandMark />
-          <span className="font-heading text-[length:var(--text-label)] font-semibold uppercase tracking-[0.18em]">
-            {SITE.name}
-          </span>
+          <BrandLogo />
         </Link>
-        <a
+        {/* <a
           className={cn(
             "inline-flex min-h-11 cursor-pointer items-center justify-self-end whitespace-nowrap text-[length:var(--text-label)] uppercase tracking-[0.14em] text-muted-foreground no-underline hover:text-foreground max-md:max-w-40 max-md:truncate",
             focusRing,
@@ -248,7 +256,7 @@ export function Stage() {
           rel="noreferrer"
         >
           {SITE.telegramLabel}
-        </a>
+        </a> */}
       </header>
 
       <div
