@@ -28,10 +28,10 @@ export function ServiceBriefPanel({ brief }: { brief: ServiceBrief }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="content-piece">
+      {/* <section className="content-piece">
         <h2 className={cn(labelText, "mb-1.5")}>Describe</h2>
         <p className="max-w-[65ch] text-base leading-relaxed text-muted-foreground">{brief.describe}</p>
-      </section>
+      </section> */}
 
       <div
         data-content-media

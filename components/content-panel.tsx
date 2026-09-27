@@ -9,13 +9,15 @@ import type { PageContent } from "@/lib/site";
 export function ContentPanel({ content }: { content: PageContent }) {
   return (
     <article className="flex w-full max-w-[560px] flex-col gap-3.5">
-      <p className={cn("content-piece", labelText)}>{content.eyebrow}</p>
+      {content.eyebrow ? <p className={cn("content-piece", labelText)}>{content.eyebrow}</p> : null}
       <h1 className="content-piece font-heading text-[length:var(--text-title)] font-semibold leading-[1.12] tracking-[-0.025em] text-balance [text-shadow:0_8px_28px_rgb(0_0_0_/_0.45)] max-md:text-[clamp(1.28rem,5vw,1.7rem)]">
         {content.title}
       </h1>
-      <p className="content-piece max-w-2xl text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground">
-        {content.lead}
-      </p>
+      {content.lead ? (
+        <p className="content-piece max-w-2xl text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground">
+          {content.lead}
+        </p>
+      ) : null}
       {content.blocks.map((block, index) => {
         if (block.type === "paragraph") {
           return (

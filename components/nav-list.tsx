@@ -88,8 +88,6 @@ export function NavList({
                     "py-0.5 text-[length:var(--text-hero)] leading-[1.15] tracking-[0.02em] max-md:text-[clamp(1.15rem,4.6vw,1.4rem)]",
                   variant === "rail" &&
                     "text-[length:var(--text-rail)] leading-[1.2] tracking-[0.06em]",
-                  tone === "sub" &&
-                    "text-[length:var(--text-sub)] leading-[1.15] tracking-[0.04em] max-md:text-[0.92rem] max-md:tracking-[0.06em]",
                   selected
                     ? "text-accent hover:text-accent"
                     : "text-foreground hover:text-muted-foreground",

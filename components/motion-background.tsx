@@ -28,7 +28,7 @@ export function sceneFromPath(pathname: string): SceneId {
   if (pathname.startsWith("/video")) return "video";
   if (pathname.startsWith("/graphic")) return "graphic";
   if (pathname.startsWith("/shop")) return "shop";
-  if (pathname.startsWith("/package")) return "package";
+  if (pathname.startsWith("/package") || pathname.startsWith("/membership")) return "package";
   return "home";
 }
 
