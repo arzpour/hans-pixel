@@ -7,14 +7,16 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ContentPanel } from "@/components/content-panel";
 import { CursorFollower } from "@/components/cursor-follower";
 import { MotionBackground, sceneFromPath } from "@/components/motion-background";
 import { NavList } from "@/components/nav-list";
+import { ProjectModal } from "@/components/project-modal";
 import { SkipLink } from "@/components/skip-link";
 import { cn, focusRing } from "@/lib/cn";
 import { NAV, SITE, activeContent, isValidPath, parentHref, resolveRoute } from "@/lib/site";
+import type { NavNode } from "@/lib/site";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 gsap.registerPlugin(Flip, useGSAP);
@@ -54,11 +56,13 @@ export function Stage() {
   const pendingFlip = useRef<Flip.FlipState | null>(null);
   const introPlayed = useRef(false);
   const contentRef = useRef<HTMLElement>(null);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
 
   const section = route.section;
   const item = route.item;
   const hasSubmenu = Boolean(section?.children?.length);
   const content = activeContent(route);
+  const viewportCenter = content?.layout === "viewport-center";
   const mode = route.depth === 0 ? "home" : content ? "leaf" : "branch";
   const scene = sceneFromPath(pathname);
 
@@ -69,10 +73,38 @@ export function Stage() {
     pendingFlip.current = Flip.getState(NAV_FLIP, { props: FLIP_PROPS });
   }, [reduced]);
 
+  const openProjectModal = useCallback(() => {
+    setProjectModalOpen(true);
+  }, []);
+
+  const closeProjectModal = useCallback(() => {
+    setProjectModalOpen(false);
+  }, []);
+
+  const startProject = useCallback(() => {
+    setProjectModalOpen(false);
+  }, []);
+
+  const onPrimaryItemClick = useCallback(
+    (navItem: NavNode) => {
+      if (navItem.id !== "hans-pixel") return false;
+      openProjectModal();
+      if (pathname !== "/hans-pixel") {
+        captureFlip();
+        router.push("/hans-pixel");
+      }
+      return true;
+    },
+    [captureFlip, openProjectModal, pathname, router],
+  );
+
   useEffect(() => {
-    if (!isValidPath(pathname)) {
-      router.replace("/");
+    if (isValidPath(pathname)) return;
+    if (pathname.startsWith("/hans-pixel")) {
+      router.replace("/hans-pixel");
+      return;
     }
+    router.replace("/");
   }, [pathname, router]);
 
   useEffect(() => {
@@ -201,6 +233,7 @@ export function Stage() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || isTypingTarget(event.target)) return;
+      if (projectModalOpen) return;
       if (route.depth === 0) return;
       event.preventDefault();
       captureFlip();
@@ -208,7 +241,7 @@ export function Stage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [captureFlip, route, router]);
+  }, [captureFlip, projectModalOpen, route, router]);
 
   const hidePrimaryOnNarrow = mode !== "home";
 
@@ -266,14 +299,16 @@ export function Stage() {
           mode === "branch" && hasSubmenu && "grid-cols-[1fr_auto_1fr] max-lg:grid-cols-1",
           mode === "leaf" &&
             hasSubmenu &&
+            !viewportCenter &&
             "grid-cols-[auto_auto_minmax(0,1fr)] max-lg:grid-cols-[minmax(140px,34%)_minmax(0,1fr)] max-md:grid-cols-[minmax(104px,38%)_minmax(0,1fr)] max-md:gap-2.5",
-          mode === "leaf" && !hasSubmenu && "grid-cols-[auto_minmax(0,1fr)] max-lg:grid-cols-1",
+          mode === "leaf" && !hasSubmenu && !viewportCenter && "grid-cols-[auto_minmax(0,1fr)] max-lg:grid-cols-1",
+          viewportCenter && "grid-cols-1",
         )}
       >
         <div
           id={content || hasSubmenu ? undefined : "main"}
           className={cn(
-            "flex min-h-0 min-w-0 flex-col",
+            "relative z-20 flex min-h-0 min-w-0 flex-col",
             mode === "home" && "w-full max-w-md items-center",
             mode !== "home" &&
               "w-max max-w-[min(240px,32vw)] items-start justify-self-start self-center ps-2 md:ps-7",
@@ -289,14 +324,28 @@ export function Stage() {
             variant={mode === "home" ? "hero" : "rail"}
             align={mode === "home" ? "center" : "start"}
             onCapture={captureFlip}
+            onItemClick={onPrimaryItemClick}
           />
+          {hasSubmenu && viewportCenter ? (
+            <div className="mt-5 w-max max-w-[min(280px,36vw)]">
+              <NavList
+                items={section!.children!}
+                activeId={item?.id ?? null}
+                flipPrefix={`sub-${section!.id}`}
+                ariaLabel={`${section!.label} submenu`}
+                variant="rail"
+                tone="sub"
+                onCapture={captureFlip}
+              />
+            </div>
+          ) : null}
         </div>
 
-        {hasSubmenu ? (
+        {hasSubmenu && !viewportCenter ? (
           <div
             id={content ? undefined : "main"}
             className={cn(
-              "flex min-h-0 min-w-0 w-max max-w-[min(280px,36vw)] flex-col justify-center self-center px-3 md:px-7 max-lg:max-w-none max-lg:w-auto max-lg:px-1",
+              "relative z-20 flex min-h-0 min-w-0 w-max max-w-[min(280px,36vw)] flex-col justify-center self-center px-3 md:px-7 max-lg:max-w-none max-lg:w-auto max-lg:px-1",
               mode === "branch" && "justify-self-center",
               mode === "leaf" && "justify-self-start max-md:px-1",
             )}
@@ -318,14 +367,26 @@ export function Stage() {
             id="main"
             ref={contentRef}
             tabIndex={-1}
-            className="flex min-h-0 min-w-0 w-full max-h-full flex-col items-center justify-center self-stretch overflow-auto px-2 py-1 md:px-7 max-md:justify-start max-md:items-stretch max-md:px-1 max-md:pb-2"
+            className={cn(
+              "flex min-h-0 min-w-0 max-h-full flex-col overflow-auto",
+              viewportCenter
+                ? "absolute inset-0 z-[5] items-center justify-center px-4 py-6 pointer-events-none"
+                : "w-full items-center justify-start self-stretch px-2 py-1 md:px-7 max-md:items-stretch max-md:px-1 max-md:pb-2",
+            )}
           >
-            <ContentPanel key={pathname} content={content} />
+            <div className={cn(viewportCenter && "pointer-events-auto w-full max-w-[560px]")}>
+              <ContentPanel key={pathname} content={content} />
+            </div>
           </main>
         ) : null}
       </div>
 
       <footer className="relative z-20 min-h-11" />
+      <ProjectModal
+        open={projectModalOpen}
+        onClose={closeProjectModal}
+        onStart={startProject}
+      />
     </div>
   );
 }

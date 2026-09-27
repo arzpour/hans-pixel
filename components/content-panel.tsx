@@ -7,14 +7,26 @@ import { cn, labelText } from "@/lib/cn";
 import type { PageContent } from "@/lib/site";
 
 export function ContentPanel({ content }: { content: PageContent }) {
+  const centered = content.layout === "viewport-center";
+
   return (
-    <article className="flex w-full max-w-[560px] flex-col gap-3.5">
+    <article
+      className={cn(
+        "my-auto flex w-full max-w-[560px] flex-col gap-3.5 py-4",
+        centered && "items-center text-center",
+      )}
+    >
       {content.eyebrow ? <p className={cn("content-piece", labelText)}>{content.eyebrow}</p> : null}
       <h1 className="content-piece font-heading text-[length:var(--text-title)] font-semibold leading-[1.12] tracking-[-0.025em] text-balance [text-shadow:0_8px_28px_rgb(0_0_0_/_0.45)] max-md:text-[clamp(1.28rem,5vw,1.7rem)]">
         {content.title}
       </h1>
       {content.lead ? (
-        <p className="content-piece max-w-2xl text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground">
+        <p
+          className={cn(
+            "content-piece max-w-2xl text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground",
+            centered && "mx-auto",
+          )}
+        >
           {content.lead}
         </p>
       ) : null}
@@ -23,17 +35,70 @@ export function ContentPanel({ content }: { content: PageContent }) {
           return (
             <p
               key={index}
-              className="content-piece max-w-[65ch] text-base leading-relaxed text-muted-foreground"
+              className={cn(
+                "content-piece max-w-[65ch] text-base leading-relaxed text-muted-foreground",
+                centered && "mx-auto",
+              )}
             >
               {block.text}
             </p>
           );
         }
+        if (block.type === "heading") {
+          return (
+            <h2
+              key={index}
+              className={cn(
+                "content-piece mt-4 font-heading text-[length:var(--text-label)] font-semibold uppercase tracking-[0.14em] text-accent first:mt-1",
+              )}
+            >
+              {block.text}
+            </h2>
+          );
+        }
+        if (block.type === "steps") {
+          return (
+            <ol key={index} className="content-piece flex w-full flex-col gap-4">
+              {block.items.map((item) => (
+                <li
+                  key={item.index}
+                  className="grid grid-cols-[48px_minmax(0,1fr)] gap-3 border-t border-border pt-3 text-start"
+                >
+                  <span className={cn(labelText, "text-accent")} aria-hidden="true">
+                    {item.index}
+                  </span>
+                  <div>
+                    <h3 className="font-heading text-base font-semibold uppercase tracking-[0.08em] text-foreground">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 max-w-[65ch] text-base leading-relaxed text-muted-foreground">
+                      {item.text}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          );
+        }
         if (block.type === "list") {
           return (
-            <ul key={index} className="content-piece flex flex-col gap-2.5 text-foreground">
+            <ul
+              key={index}
+              className={cn(
+                "content-piece flex flex-col gap-2.5 text-foreground",
+                centered ? "items-center" : "items-stretch",
+              )}
+            >
               {block.items.map((item) => (
-                <li key={item} className="relative pl-[18px] before:absolute before:top-[0.55em] before:left-0 before:size-1.5 before:bg-accent">
+                <li
+                  key={item}
+                  className={cn(
+                    "relative text-base leading-relaxed",
+                    centered
+                      ? "pl-0 before:hidden"
+                      : "pl-[18px] before:absolute before:top-[0.55em] before:left-0 before:size-1.5 before:bg-accent",
+                  )}
+                >
                   {item}
                 </li>
               ))}

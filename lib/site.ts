@@ -10,6 +10,8 @@ export type ServiceBrief = {
 export type ContentBlock =
   | { type: "paragraph"; text: string }
   | { type: "list"; items: string[] }
+  | { type: "heading"; text: string }
+  | { type: "steps"; items: { index: string; title: string; text: string }[] }
   | { type: "cases"; items: { title: string; meta: string; year: string; blurb: string }[] }
   | { type: "stats"; items: { value: string; label: string }[] }
   | { type: "service"; brief: ServiceBrief }
@@ -21,6 +23,7 @@ export type PageContent = {
   eyebrow?: string;
   title: string;
   lead?: string;
+  layout?: "rail" | "viewport-center";
   blocks: ContentBlock[];
 };
 
@@ -67,6 +70,7 @@ function comingSoon(title = "Coming soon.", lead = "This desk is not open yet.",
   return {
     title,
     lead,
+    layout: "viewport-center",
     blocks: extras.length ? [{ type: "list", items: extras }] : [],
   };
 }
@@ -77,118 +81,60 @@ export const NAV: NavNode[] = [
     label: "Hans Pixel",
     href: "/hans-pixel",
     index: "01",
-    // kicker: "Studio", 
-    children: [
-      {
-        id: "about",
-        label: "About",
-        href: "/hans-pixel/about",
-        index: "01",
-        // kicker: "Studio", 
-        content: {
-          eyebrow: "Hans Pixel / About",
-          title: "A studio for stills, cuts, and marks.",
-          lead: "We retouch photographs, edit film, and design graphics — then pack the work as presets, prints, and delivery kits.",
-          blocks: [
+    content: {
+      title: "A visual post-production studio for images, film, and digital work.",
+      lead: "We edit, refine, and shape visual content for photographers, filmmakers, brands, and creative teams.",
+      blocks: [
+        { type: "heading", text: "About Hans Pixel" },
+        {
+          type: "paragraph",
+          text: "Hans Pixel is an independent visual post-production studio built around one simple idea: good visuals deserve thoughtful finishing.",
+        },
+        {
+          type: "paragraph",
+          text: "We work across photography, video, AI-assisted editing, and digital design — helping creative work become cleaner, stronger, and ready to be seen.",
+        },
+        {
+          type: "paragraph",
+          text: "Whether it's a single image, a full photo set, a campaign, or an ongoing creative workflow, we adapt our process to the project and its visual language.",
+        },
+        { type: "heading", text: "Our Approach" },
+        {
+          type: "paragraph",
+          text: "Clean. Intentional. Consistent.",
+        },
+        {
+          type: "paragraph",
+          text: "We don't believe in one-size-fits-all editing. Every project has its own mood, purpose, and visual language. Our job is to understand that direction and build the final image around it.",
+        },
+        { type: "heading", text: "How It Works" },
+        {
+          type: "steps",
+          items: [
             {
-              type: "paragraph",
-              text: "Hans Pixel is a small editing room. You send the file. We return a finished frame, a timeline, or a set you can sell.",
+              index: "01",
+              title: "Send",
+              text: "Send us your files, references, and project details.",
             },
             {
-              type: "stats",
-              items: [
-                { value: "48h", label: "Typical turn" },
-                { value: "RAW", label: "In" },
-                { value: "Print", label: "Out" },
-              ],
+              index: "02",
+              title: "Define",
+              text: "We review the material and align on the visual direction.",
+            },
+            {
+              index: "03",
+              title: "Edit",
+              text: "Our team works through the project with a focus on detail, consistency, and finish.",
+            },
+            {
+              index: "04",
+              title: "Deliver",
+              text: "You receive the final files, ready for publication, print, or your next creative step.",
             },
           ],
         },
-      },
-      {
-        id: "portfolio",
-        label: "Portfolio",
-        href: "/hans-pixel/portfolio",
-        index: "02",
-        // kicker: "Frames",
-        content: {
-          eyebrow: "Hans Pixel / Portfolio",
-          title: "Before the client name, the picture.",
-          lead: "A short index of recent photo, video, and graphic jobs.",
-          blocks: [
-            {
-              type: "cases",
-              items: [
-                {
-                  title: "North Glass",
-                  meta: "Photo retouch",
-                  year: "2026",
-                  blurb: "Catalog stills: color, skin, and product edges for a glassware launch.",
-                },
-                {
-                  title: "Redline Cut",
-                  meta: "Video edit",
-                  year: "2025",
-                  blurb: "A 45-second brand cut with titles, grade, and sound bed.",
-                },
-                {
-                  title: "Velvet Grid",
-                  meta: "Graphic design",
-                  year: "2025",
-                  blurb: "Poster system and social set for an exhibition week.",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "how-it-works",
-        label: "How it works",
-        href: "/hans-pixel/how-it-works",
-        index: "03",
-        // kicker: "Flow",
-        content: {
-          eyebrow: "Hans Pixel / How it works",
-          title: "Pick a desk. Upload. We cut.",
-          lead: "Every job follows the same path so you always know where the file sits.",
-          blocks: [
-            {
-              type: "list",
-              items: [
-                "Choose Photo, Video, Graphic, Shop, or Membership",
-                "Open the service — read describe, price, and time",
-                "Upload the file or drop a brief",
-                "We return a preview, then the final set",
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "social",
-        label: "Social media",
-        href: "/hans-pixel/social",
-        index: "04",
-        // kicker: "Channels",
-        content: {
-          eyebrow: "Hans Pixel / Social",
-          title: "The studio on air.",
-          lead: "Short cuts, retouch reels, and preset drops. Telegram is the fastest line.",
-          blocks: [
-            {
-              type: "list",
-              items: [
-                "Telegram — briefs and file drop",
-                "Instagram — before / after frames",
-                "YouTube — grade and cut process",
-              ],
-            },
-            { type: "contact" },
-          ],
-        },
-      },
-    ],
+      ],
+    },
   },
   {
     id: "photo",

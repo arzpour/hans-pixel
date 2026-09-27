@@ -16,6 +16,7 @@ type NavListProps = {
   align?: "start" | "center";
   tone?: "primary" | "sub";
   onCapture: () => void;
+  onItemClick?: (item: NavNode, event: MouseEvent) => boolean | void;
 };
 
 function isModifiedClick(event: MouseEvent) {
@@ -32,6 +33,7 @@ export function NavList({
   align = "start",
   tone = "primary",
   onCapture,
+  onItemClick,
 }: NavListProps) {
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     const links = Array.from(
@@ -79,7 +81,12 @@ export function NavList({
                 data-flip-id={`${flipPrefix}-${item.id}`}
                 aria-current={current ? "page" : ancestor ? "true" : undefined}
                 onClick={(event) => {
-                  if (!isModifiedClick(event)) onCapture();
+                  if (isModifiedClick(event)) return;
+                  if (onItemClick?.(item, event) === true) {
+                    event.preventDefault();
+                    return;
+                  }
+                  onCapture();
                 }}
                 className={cn(
                   "group relative inline-flex min-h-11 max-w-full cursor-pointer items-center gap-3.5 px-0.5 font-heading font-semibold uppercase no-underline transition-colors duration-300",
