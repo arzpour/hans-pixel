@@ -318,7 +318,7 @@ export function Stage() {
             id="main"
             ref={contentRef}
             tabIndex={-1}
-            className="flex min-h-0 min-w-0 w-full max-h-full flex-col items-stretch justify-center self-center overflow-auto px-2 py-1 md:px-7 max-md:justify-start max-md:px-1 max-md:pb-2"
+            className="flex min-h-0 min-w-0 w-full max-h-full flex-col items-center justify-center self-stretch overflow-auto px-2 py-1 md:px-7 max-md:justify-start max-md:items-stretch max-md:px-1 max-md:pb-2"
           >
             <ContentPanel key={pathname} content={content} />
           </main>

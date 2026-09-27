@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { KeyboardEvent, MouseEvent } from "react";
+import { SocialLinks } from "@/components/social-links";
 import { cn, focusRing } from "@/lib/cn";
 import type { NavNode } from "@/lib/site";
 
@@ -105,6 +106,7 @@ export function NavList({
                   )}
                 />
               </Link>
+              {item.id === "account" ? <SocialLinks align={align} variant={variant} /> : null}
             </li>
           );
         })}
