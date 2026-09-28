@@ -21,8 +21,29 @@ import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 gsap.registerPlugin(Flip, useGSAP);
 
-const NAV_FLIP = "a[data-nav-link]";
+const FLIP_SELECTOR = "[data-flip-id]";
 const FLIP_PROPS = "fontSize,letterSpacing,lineHeight,padding";
+
+function flipElements() {
+  return gsap.utils.toArray<HTMLElement>(FLIP_SELECTOR);
+}
+
+function resetFlipMotion() {
+  const elements = flipElements();
+  gsap.killTweensOf(elements);
+  Flip.killFlipsOf(elements);
+  gsap.set(elements, {
+    clearProps: "transform,translate,x,y,top,left,width,height,position,opacity,visibility",
+  });
+}
+
+function flipRootsOrLinks(elements: Element[]) {
+  const roots = elements.filter(
+    (element) => element instanceof HTMLElement && element.dataset.flipId?.startsWith("rail-"),
+  );
+  if (roots.length) return roots;
+  return elements.filter((element) => element instanceof HTMLAnchorElement);
+}
 
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -69,8 +90,8 @@ export function Stage() {
   const captureFlip = useCallback(() => {
     if (reduced) return;
     if (window.matchMedia("(max-width: 767px)").matches) return;
-    Flip.killFlipsOf(NAV_FLIP);
-    pendingFlip.current = Flip.getState(NAV_FLIP, { props: FLIP_PROPS });
+    resetFlipMotion();
+    pendingFlip.current = Flip.getState(flipElements(), { props: FLIP_PROPS });
   }, [reduced]);
 
   const openProjectModal = useCallback(() => {
@@ -110,8 +131,8 @@ export function Stage() {
   useEffect(() => {
     const onPop = () => {
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        Flip.killFlipsOf(NAV_FLIP);
-        pendingFlip.current = Flip.getState(NAV_FLIP, { props: FLIP_PROPS });
+        resetFlipMotion();
+        pendingFlip.current = Flip.getState(flipElements(), { props: FLIP_PROPS });
       }
     };
     window.addEventListener("popstate", onPop);
@@ -124,36 +145,41 @@ export function Stage() {
 
     if (!reduced && state) {
       Flip.from(state, {
-        targets: NAV_FLIP,
+        targets: flipElements(),
         duration: 1.05,
         ease: "power2.inOut",
-        absolute: true,
+        absolute: false,
         prune: true,
         scale: false,
-        nested: false,
+        nested: true,
         props: FLIP_PROPS,
         absoluteOnLeave: true,
+        overwrite: true,
         onEnter: (elements) => {
+          const incoming = flipRootsOrLinks(elements);
+          if (!incoming.length) return;
           gsap.fromTo(
-            elements,
+            incoming,
             { autoAlpha: 0, x: 48 },
             {
               autoAlpha: 1,
               x: 0,
               duration: 0.92,
               ease: "power2.out",
-              stagger: 0.045,
-              overwrite: "auto",
+              stagger: incoming[0] instanceof HTMLAnchorElement ? 0.045 : 0,
+              overwrite: true,
             },
           );
         },
         onLeave: (elements) => {
-          gsap.to(elements, {
+          const outgoing = flipRootsOrLinks(elements);
+          if (!outgoing.length) return;
+          gsap.to(outgoing, {
             autoAlpha: 0,
             x: -16,
             duration: 0.4,
             ease: "power2.in",
-            overwrite: "auto",
+            overwrite: true,
           });
         },
       });
@@ -219,7 +245,7 @@ export function Stage() {
     () => {
       if (reduced || introPlayed.current) return;
       introPlayed.current = true;
-      gsap.from(NAV_FLIP, {
+      gsap.from("a[data-nav-link]", {
         opacity: 0,
         y: 28,
         duration: 0.85,
@@ -305,6 +331,7 @@ export function Stage() {
       >
         <div
           id={content || hasSubmenu ? undefined : "main"}
+          data-flip-id="rail-primary"
           className={cn(
             "relative z-20 flex min-h-0 min-w-0 flex-col",
             mode === "home" && "w-full max-w-md items-center",
@@ -329,6 +356,7 @@ export function Stage() {
         {hasSubmenu ? (
           <div
             id={content ? undefined : "main"}
+            data-flip-id="rail-sub"
             className={cn(
               "relative z-20 flex min-h-0 min-w-0 w-max max-w-[min(280px,36vw)] flex-col justify-center self-center px-3 md:px-7 max-lg:max-w-none max-lg:w-auto max-lg:px-1",
               mode === "branch" && "justify-self-center",
