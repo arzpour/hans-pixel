@@ -62,7 +62,7 @@ export function Stage() {
   const item = route.item;
   const hasSubmenu = Boolean(section?.children?.length);
   const content = activeContent(route);
-  const viewportCenter = content?.layout === "viewport-center";
+  const viewportCenter = content?.layout === "viewport-center" && !hasSubmenu;
   const mode = route.depth === 0 ? "home" : content ? "leaf" : "branch";
   const scene = sceneFromPath(pathname);
 
@@ -299,10 +299,8 @@ export function Stage() {
           mode === "branch" && hasSubmenu && "grid-cols-[1fr_auto_1fr] max-lg:grid-cols-1",
           mode === "leaf" &&
             hasSubmenu &&
-            !viewportCenter &&
             "grid-cols-[auto_auto_minmax(0,1fr)] max-lg:grid-cols-[minmax(140px,34%)_minmax(0,1fr)] max-md:grid-cols-[minmax(104px,38%)_minmax(0,1fr)] max-md:gap-2.5",
-          mode === "leaf" && !hasSubmenu && !viewportCenter && "grid-cols-[auto_minmax(0,1fr)] max-lg:grid-cols-1",
-          viewportCenter && "grid-cols-1",
+          mode === "leaf" && !hasSubmenu && "grid-cols-[auto_minmax(0,1fr)] max-lg:grid-cols-1",
         )}
       >
         <div
@@ -326,22 +324,9 @@ export function Stage() {
             onCapture={captureFlip}
             onItemClick={onPrimaryItemClick}
           />
-          {hasSubmenu && viewportCenter ? (
-            <div className="mt-5 w-max max-w-[min(280px,36vw)]">
-              <NavList
-                items={section!.children!}
-                activeId={item?.id ?? null}
-                flipPrefix={`sub-${section!.id}`}
-                ariaLabel={`${section!.label} submenu`}
-                variant="rail"
-                tone="sub"
-                onCapture={captureFlip}
-              />
-            </div>
-          ) : null}
         </div>
 
-        {hasSubmenu && !viewportCenter ? (
+        {hasSubmenu ? (
           <div
             id={content ? undefined : "main"}
             className={cn(
@@ -371,7 +356,12 @@ export function Stage() {
               "flex min-h-0 min-w-0 max-h-full flex-col overflow-auto",
               viewportCenter
                 ? "absolute inset-0 z-[5] items-center justify-center px-4 py-6 pointer-events-none"
-                : "w-full items-center justify-start self-stretch px-2 py-1 md:px-7 max-md:items-stretch max-md:px-1 max-md:pb-2",
+                : cn(
+                    "w-full self-stretch px-2 py-1 md:px-7 max-md:px-1 max-md:pb-2",
+                    content.layout === "viewport-center"
+                      ? "items-center justify-center"
+                      : "items-center justify-start max-md:items-stretch",
+                  ),
             )}
           >
             <div className={cn(viewportCenter && "pointer-events-auto w-full max-w-[560px]")}>
