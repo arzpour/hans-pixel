@@ -45,7 +45,6 @@ export const SITE = {
   telegram: "https://t.me/hanspixel",
   instagram: "https://www.instagram.com/hans.pixel?stkn=MWxnYzFiNHA5YWVzNw==",
   email: "mailto:hello@hanspixel.com",
-  // telegramLabel: "تلگرام با ما",
 };
 
 function service(
@@ -148,9 +147,13 @@ export const NAV: NavNode[] = [
         href: "/photo/lr-basic",
         index: "01",
         content: service(
+          // eyebrow
           undefined,
+          // title
           "Clean, balanced, natural.",
+          // lead
           "Simple and refined color correction made easy for photographers. Create clean, balanced, and natural-looking images with our Lightroom Basic service.",
+          // brief
           {
             // describe: "Lr Basic: cull, balance, color, and noise reduction. You keep the catalog.",
             beforeLabel: "Card",
@@ -159,6 +162,7 @@ export const NAV: NavNode[] = [
             time: "24–48 hours",
             days: "2 days",
           },
+          // extras
           [
             "Color correction",
             "Culling",

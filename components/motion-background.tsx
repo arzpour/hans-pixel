@@ -12,15 +12,55 @@ type Mote = {
   a: number;
 };
 
-type SceneId = "home" | "photo" | "video" | "graphic" | "shop" | "package";
+type SceneId =
+  | "home"
+  | "photo"
+  | "video"
+  | "ai"
+  | "web"
+  | "graphic"
+  | "shop"
+  // | "package"
+  | "membership";
 
 const SCENES: { id: SceneId; src: string; alt: string }[] = [
-  { id: "home", src: "/bg/home.jpg", alt: "Photography studio with cameras and lights" },
+  {
+    id: "home",
+    src: "/bg/home.jpg",
+    alt: "Photography studio with cameras and lights",
+  },
   { id: "photo", src: "/bg/photo.jpg", alt: "Camera on a studio set" },
   { id: "video", src: "/bg/video.jpg", alt: "Film camera and crew on a shoot" },
-  { id: "graphic", src: "/bg/graphic.jpg", alt: "Graphic design workspace with color swatches" },
-  { id: "shop", src: "/bg/shop.jpg", alt: "Printed photographs laid out for review" },
-  { id: "package", src: "/bg/package.jpg", alt: "Desk with a creative project in progress" },
+  {
+    id: "graphic",
+    src: "/bg/graphic.jpg",
+    alt: "Graphic design workspace with color swatches",
+  },
+  {
+    id: "shop",
+    src: "/bg/shop.jpg",
+    alt: "Printed photographs laid out for review",
+  },
+  {
+    id: "ai",
+    src: "/bg/ai.jpg",
+    alt: "AI-generated images",
+  },
+  {
+    id: "web",
+    src: "/bg/web.jpg",
+    alt: "Web development workspace",
+  },
+  {
+    id: "membership",
+    src: "/bg/package.jpg",
+    alt: "Membership dashboard",
+  },
+  // {
+  //   id: "package",
+  //   src: "/bg/package.jpg",
+  //   alt: "Desk with a creative project in progress",
+  // },
 ];
 
 export function sceneFromPath(pathname: string): SceneId {
@@ -28,7 +68,10 @@ export function sceneFromPath(pathname: string): SceneId {
   if (pathname.startsWith("/video")) return "video";
   if (pathname.startsWith("/graphic")) return "graphic";
   if (pathname.startsWith("/shop")) return "shop";
-  if (pathname.startsWith("/package") || pathname.startsWith("/membership")) return "package";
+  // if (pathname.startsWith("/package")) return "package";
+  if (pathname.startsWith("/ai")) return "ai";
+  if (pathname.startsWith("/web")) return "web";
+  if (pathname.startsWith("/membership")) return "membership";
   return "home";
 }
 
@@ -114,7 +157,10 @@ export function MotionBackground({
   }, [freeze]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden bg-black" aria-hidden="true">
+    <div
+      className="pointer-events-none absolute inset-0 overflow-hidden bg-black"
+      aria-hidden="true"
+    >
       {SCENES.map((item) => (
         <div
           key={item.id}
