@@ -1,31 +1,10 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useId, useState } from "react";
-import { cn, fieldLabel, focusRing, labelText, primaryButton } from "@/lib/cn";
+import { OrderForm } from "@/components/order-form";
+import { cn, labelText } from "@/lib/cn";
 import type { ServiceBrief } from "@/lib/site";
 
-export function ServiceBriefPanel({ brief }: { brief: ServiceBrief }) {
-  const id = useId();
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "ready" | "sent">("idle");
-
-  const onFile = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      setFileName(null);
-      setStatus("idle");
-      return;
-    }
-    setFileName(file.name);
-    setStatus("ready");
-  };
-
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!fileName) return;
-    setStatus("sent");
-  };
-
+export function ServiceBriefPanel({ brief, serviceHref }: { brief: ServiceBrief; serviceHref: string | null }) {
   return (
     <div className="flex flex-col gap-4">
       {/* <section className="content-piece">
@@ -72,34 +51,7 @@ export function ServiceBriefPanel({ brief }: { brief: ServiceBrief }) {
         ) : null}
       </dl>
 
-      {status === "sent" ? (
-        <p className="content-piece text-[length:var(--text-lead)] leading-[1.6] text-muted-foreground" role="status">
-          Upload received: {fileName}. We will reply with a preview.
-        </p>
-      ) : (
-        <form className="content-piece flex max-w-md flex-col gap-2" onSubmit={onSubmit}>
-          <label htmlFor={`${id}-file`} className={fieldLabel}>
-            Upload
-          </label>
-          <input
-            id={`${id}-file`}
-            name="file"
-            type="file"
-            accept="image/*,video/*,.psd,.zip,.pdf"
-            onChange={onFile}
-            className={cn(
-              "min-h-11 w-full cursor-pointer text-muted-foreground file:me-3 file:min-h-11 file:cursor-pointer file:border-0 file:bg-muted file:px-3 file:font-heading file:text-[length:var(--text-label)] file:uppercase file:tracking-[0.08em] file:text-foreground",
-              focusRing,
-            )}
-          />
-          <p className={labelText}>
-            {fileName ? fileName : "RAW, JPEG, PSD, ZIP, or a short clip."}
-          </p>
-          <button type="submit" className={cn(primaryButton, focusRing)} disabled={!fileName}>
-            {status === "ready" ? "Send file" : "Choose a file first"}
-          </button>
-        </form>
-      )}
+      {serviceHref ? <OrderForm serviceHref={serviceHref} /> : null}
     </div>
   );
 }
