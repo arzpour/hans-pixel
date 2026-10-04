@@ -15,8 +15,9 @@ import { NavList } from "@/components/nav-list";
 import { ProjectModal } from "@/components/project-modal";
 import { SkipLink } from "@/components/skip-link";
 import { cn, focusRing } from "@/lib/cn";
-import { NAV, SITE, activeContent, isValidPath, parentHref, resolveRoute } from "@/lib/site";
-import type { NavNode } from "@/lib/site";
+import { useSession } from "@/provider/session-provider";
+import { ACCOUNT, NAV, SITE, accountLabel, accountMenu, activeContent, isValidPath, parentHref, resolveRoute } from "@/lib/site";
+import type { NavNode, PageContent } from "@/lib/site";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 gsap.registerPlugin(Flip, useGSAP);
@@ -69,10 +70,18 @@ function BrandLogo() {
   );
 }
 
+const openingAccount: PageContent = {
+  title: "Loading your account.",
+  lead: "Getting your name and menu.",
+  pending: true,
+  blocks: [],
+};
+
 export function Stage() {
   const pathname = usePathname();
   const router = useRouter();
   const reduced = usePrefersReducedMotion();
+  const { user, status, logout } = useSession();
   const route = resolveRoute(pathname);
   const pendingFlip = useRef<Flip.FlipState | null>(null);
   const introPlayed = useRef(false);
@@ -81,8 +90,18 @@ export function Stage() {
 
   const section = route.section;
   const item = route.item;
-  const hasSubmenu = Boolean(section?.children?.length);
-  const content = activeContent(route);
+  const accountSection = section?.id === "account";
+  const submenuItems = accountSection ? (user ? accountMenu() : []) : (section?.children ?? []);
+  const hasSubmenu = submenuItems.length > 0;
+  const page = activeContent(route);
+  const content: PageContent | null =
+    accountSection && status === "loading"
+      ? openingAccount
+      : accountSection && user && !item
+        ? null
+        : accountSection && !user && item
+          ? (ACCOUNT.content ?? null)
+          : page;
   const viewportCenter = content?.layout === "viewport-center" && !hasSubmenu;
   const mode = route.depth === 0 ? "home" : content ? "leaf" : "branch";
   const scene = sceneFromPath(pathname);
@@ -118,6 +137,30 @@ export function Stage() {
     },
     [captureFlip, openProjectModal, pathname, router],
   );
+
+  const onAccountItemClick = useCallback(
+    (navItem: NavNode) => {
+      if (navItem.id !== "account-sign-out") return false;
+      void logout().then(() => router.replace("/account"));
+      return true;
+    },
+    [logout, router],
+  );
+
+  useEffect(() => {
+    if (status !== "anonymous") return;
+    if (!pathname.startsWith("/account/")) return;
+    router.replace("/account");
+  }, [pathname, router, status]);
+
+  useEffect(() => {
+    if (section?.id !== "account") return;
+    if (user) {
+      document.title = `${item?.label ?? accountLabel(user)} — ${SITE.name}`;
+      return;
+    }
+    if (status === "anonymous") document.title = `${ACCOUNT.label} — ${SITE.name}`;
+  }, [item, section, status, user]);
 
   useEffect(() => {
     if (isValidPath(pathname)) return;
@@ -253,7 +296,7 @@ export function Stage() {
         ease: "expo.out",
       });
     },
-    { dependencies: [reduced] },
+    { dependencies: [reduced, pathname] },
   );
 
   useEffect(() => {
@@ -341,7 +384,9 @@ export function Stage() {
           )}
         >
           <NavList
-            items={NAV}
+            items={NAV.map((node) =>
+              node.id === "account" && user ? { ...node, label: accountLabel(user) } : node,
+            )}
             activeId={item ? null : section?.id ?? null}
             ancestorId={item ? section?.id ?? null : null}
             flipPrefix="nav"
@@ -364,13 +409,14 @@ export function Stage() {
             )}
           >
             <NavList
-              items={section!.children!}
+              items={submenuItems}
               activeId={item?.id ?? null}
               flipPrefix={`sub-${section!.id}`}
-              ariaLabel={`${section!.label} submenu`}
+              ariaLabel={`${user ? accountLabel(user) : section!.label} submenu`}
               variant="rail"
               tone="sub"
               onCapture={captureFlip}
+              onItemClick={accountSection ? onAccountItemClick : undefined}
             />
           </div>
         ) : null}
@@ -386,14 +432,14 @@ export function Stage() {
                 ? "absolute inset-0 z-[5] items-center justify-center px-4 py-6 pointer-events-none"
                 : cn(
                     "w-full self-stretch px-2 py-1 md:px-7 max-md:px-1 max-md:pb-2",
-                    content.layout === "viewport-center"
-                      ? "items-center justify-center"
+                    accountSection || content.layout === "viewport-center"
+                      ? "items-center justify-safe-center"
                       : "items-center justify-start max-md:items-stretch",
                   ),
             )}
           >
             <div className={cn(viewportCenter && "pointer-events-auto w-full max-w-[560px]")}>
-              <ContentPanel key={pathname} content={content} />
+              <ContentPanel key={pathname} content={content} serviceHref={item?.href ?? null} />
             </div>
           </main>
         ) : null}

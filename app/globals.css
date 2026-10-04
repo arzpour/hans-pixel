@@ -40,6 +40,10 @@
   }
 }
 
+.justify-safe-center {
+  justify-content: safe center;
+}
+
 @keyframes kenburns {
   from {
     transform: scale(1.08) translate3d(0, 0, 0);

@@ -17,13 +17,15 @@ export type ContentBlock =
   | { type: "service"; brief: ServiceBrief }
   | { type: "shop"; items: { title: string; price: string; days: string; blurb: string }[] }
   | { type: "auth" }
-  | { type: "contact" };
+  | { type: "profile" }
+  | { type: "orders" };
 
 export type PageContent = {
   eyebrow?: string;
   title: string;
   lead?: string;
   layout?: "rail" | "viewport-center";
+  pending?: boolean;
   blocks: ContentBlock[];
 };
 
@@ -646,13 +648,69 @@ export const NAV: NavNode[] = [
     content: {
       eyebrow: "Account",
       title: "Sign in to the desk.",
-      lead: "Orders, uploads, and membership status live here. Paste is allowed — use a password manager.",
+      lead: "We email a code. Open the link, and it is entered for you. No password.",
       blocks: [{ type: "auth" }],
     },
+    children: [
+      {
+        id: "account-profile",
+        label: "Profile",
+        href: "/account/profile",
+        index: "01",
+        content: {
+          eyebrow: "Account",
+          title: "Your place on the desk.",
+          lead: "The name and email on your orders.",
+          blocks: [{ type: "profile" }],
+        },
+      },
+      {
+        id: "account-orders",
+        label: "Orders",
+        href: "/account/orders",
+        index: "02",
+        content: {
+          eyebrow: "Account",
+          title: "Your orders.",
+          lead: "Who sent it, the service, the note, and the files.",
+          blocks: [{ type: "orders" }],
+        },
+      },
+    ],
   },
 ];
 
 export const ACCOUNT: NavNode = NAV[NAV.length - 1]!;
+
+export function accountLabel(user: { name: string | null; email: string }) {
+  const name = user.name?.trim();
+  if (name) return name;
+  const local = user.email.split("@")[0]?.trim();
+  return local || "Account";
+}
+
+export function serviceTitle(href: string) {
+  const clean = href === "/" ? "/" : href.replace(/\/$/, "");
+  for (const section of NAV) {
+    if (section.href === clean) return section.label;
+    for (const child of section.children ?? []) {
+      if (child.href === clean) return `${section.label} · ${child.label}`;
+    }
+  }
+  return clean || "Order";
+}
+
+export function accountMenu(): NavNode[] {
+  return [
+    ...(ACCOUNT.children ?? []),
+    // {
+    //   id: "account-sign-out",
+    //   label: "Sign out",
+    //   href: "/account",
+    //   index: "04",
+    // },
+  ];
+}
 
 export type ResolvedRoute = {
   pathname: string;
@@ -687,6 +745,11 @@ export function resolveRoute(pathname: string): ResolvedRoute {
   }
 
   return { pathname: clean, section: null, item: null, depth: 0 };
+}
+
+export function isOrderablePath(pathname: string): boolean {
+  const route = resolveRoute(pathname);
+  return Boolean(route.item?.content?.blocks.some((block) => block.type === "service"));
 }
 
 export function isValidPath(pathname: string): boolean {
@@ -748,6 +811,7 @@ export function getPageMeta(pathname: string): { title: string; description: str
 
 export function activeContent(route: ResolvedRoute): PageContent | null {
   if (route.item?.content) return route.item.content;
+  if (route.section?.id === "account" && !route.item) return route.section.content ?? null;
   if (route.section?.content && !route.section.children) return route.section.content;
   return null;
 }

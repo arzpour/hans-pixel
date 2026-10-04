@@ -20,7 +20,13 @@ type NavListProps = {
 };
 
 function isModifiedClick(event: MouseEvent) {
-  return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+  return (
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    event.button !== 0
+  );
 }
 
 export function NavList({
@@ -37,7 +43,9 @@ export function NavList({
 }: NavListProps) {
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     const links = Array.from(
-      event.currentTarget.querySelectorAll<HTMLAnchorElement>("a[data-nav-link]"),
+      event.currentTarget.querySelectorAll<HTMLAnchorElement>(
+        "a[data-nav-link]",
+      ),
     );
     const index = links.indexOf(document.activeElement as HTMLAnchorElement);
     if (index < 0) return;
@@ -113,7 +121,9 @@ export function NavList({
                   )}
                 />
               </Link>
-              {item.id === "account" ? <SocialLinks align={align} variant={variant} /> : null}
+              {item.id === "account" ? (
+                <SocialLinks align={align} variant={variant} />
+              ) : null}
             </li>
           );
         })}

@@ -1,12 +1,20 @@
 "use client";
 
+import { AccountRecords } from "@/components/account-records";
+import { Spinner } from "@/components/spinner";
 import { AuthPanel } from "@/components/auth-panel";
-import { ContactForm } from "@/components/contact-form";
+import { ProfilePanel } from "@/components/profile-panel";
 import { ServiceBriefPanel } from "@/components/service-brief";
 import { cn, labelText } from "@/lib/cn";
 import type { PageContent } from "@/lib/site";
 
-export function ContentPanel({ content }: { content: PageContent }) {
+export function ContentPanel({
+  content,
+  serviceHref = null,
+}: {
+  content: PageContent;
+  serviceHref?: string | null;
+}) {
   const centered = content.layout === "viewport-center";
 
   return (
@@ -17,9 +25,18 @@ export function ContentPanel({ content }: { content: PageContent }) {
       )}
     >
       {content.eyebrow ? <p className={cn("content-piece", labelText)}>{content.eyebrow}</p> : null}
-      <h1 className="content-piece font-heading text-[length:var(--text-title)] font-semibold leading-[1.12] tracking-[-0.025em] text-balance [text-shadow:0_8px_28px_rgb(0_0_0_/_0.45)] max-md:text-[clamp(1.28rem,5vw,1.7rem)]">
-        {content.title}
-      </h1>
+      <div
+        className={cn("content-piece flex w-full items-center gap-3", centered && "justify-center")}
+        role={content.pending ? "status" : undefined}
+        aria-live={content.pending ? "polite" : undefined}
+      >
+        <h1 className="min-w-0 font-heading text-[length:var(--text-title)] font-semibold leading-[1.12] tracking-[-0.025em] text-balance [text-shadow:0_8px_28px_rgb(0_0_0_/_0.45)] max-md:text-[clamp(1.28rem,5vw,1.7rem)]">
+          {content.title}
+        </h1>
+        {content.pending ? (
+          <Spinner className="size-5 text-muted-foreground" />
+        ) : null}
+      </div>
       {content.lead ? (
         <p
           className={cn(
@@ -80,31 +97,31 @@ export function ContentPanel({ content }: { content: PageContent }) {
             </ol>
           );
         }
-        if (block.type === "list") {
-          return (
-            <ul
-              key={index}
-              className={cn(
-                "content-piece flex flex-col gap-2.5 text-foreground",
-                centered ? "items-center" : "items-stretch",
-              )}
-            >
-              {block.items.map((item) => (
-                <li
-                  key={item}
-                  className={cn(
-                    "relative text-base leading-relaxed",
-                    centered
-                      ? "pl-0 before:hidden"
-                      : "pl-[18px] before:absolute before:top-[0.55em] before:left-0 before:size-1.5 before:bg-accent",
-                  )}
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          );
-        }
+        // if (block.type === "list") {
+        //   return (
+        //     <ul
+        //       key={index}
+        //       className={cn(
+        //         "content-piece flex flex-col gap-2.5 text-foreground",
+        //         centered ? "items-center" : "items-stretch",
+        //       )}
+        //     >
+        //       {block.items.map((item) => (
+        //         <li
+        //           key={item}
+        //           className={cn(
+        //             "relative text-base leading-relaxed",
+        //             centered
+        //               ? "pl-0 before:hidden"
+        //               : "pl-[18px] before:absolute before:top-[0.55em] before:left-0 before:size-1.5 before:bg-accent",
+        //           )}
+        //         >
+        //           {item}
+        //         </li>
+        //       ))}
+        //     </ul>
+        //   );
+        // }
         if (block.type === "stats") {
           return (
             <dl key={index} className="content-piece grid grid-cols-3 gap-4 py-2 max-md:grid-cols-2">
@@ -147,7 +164,7 @@ export function ContentPanel({ content }: { content: PageContent }) {
         if (block.type === "service") {
           return (
             <div key={index}>
-              <ServiceBriefPanel brief={block.brief} />
+              <ServiceBriefPanel brief={block.brief} serviceHref={serviceHref} />
             </div>
           );
         }
@@ -185,11 +202,21 @@ export function ContentPanel({ content }: { content: PageContent }) {
             </div>
           );
         }
-        return (
-          <div key={index} className="content-piece">
-            <ContactForm />
-          </div>
-        );
+        if (block.type === "profile") {
+          return (
+            <div key={index} className="content-piece">
+              <ProfilePanel />
+            </div>
+          );
+        }
+        if (block.type === "orders") {
+          return (
+            <div key={index} className="content-piece">
+              <AccountRecords />
+            </div>
+          );
+        }
+        return null;
       })}
     </article>
   );

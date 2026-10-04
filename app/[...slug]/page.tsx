@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getAllSlugs, getPageMeta, isValidPath } from "@/lib/site";
 
 type Props = {
@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function NestedPage({ params }: Props) {
   const { slug } = await params;
   const pathname = `/${slug.join("/")}`;
+  if (pathname === "/account/uploads") redirect("/account/orders");
   if (!isValidPath(pathname)) notFound();
   return null;
 }
