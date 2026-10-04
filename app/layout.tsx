@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Space_Grotesk } from "next/font/google";
+import { SessionProvider } from "@/provider/session-provider";
 import { Stage } from "@/components/stage";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -44,8 +45,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-background font-sans text-foreground">
-        {children}
-        <Stage />
+        <SessionProvider>
+          {children}
+          <Stage />
+        </SessionProvider>
       </body>
     </html>
   );
