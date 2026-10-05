@@ -92,7 +92,7 @@ export function AuthPanel() {
     if (step !== "code" || code.length !== 6 || triedCode.current === code) return;
     triedCode.current = code;
     const storedName = mode === "up" ? name.trim() : (sessionStorage.getItem(NAME_KEY)?.trim() ?? "");
-    setNotice("The code is in the field. Checking it now.");
+    // setNotice("The code is in the field. Checking it now.");
     void verify(email, code, storedName);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, email, mode, name, step]);
@@ -116,7 +116,7 @@ export function AuthPanel() {
     setStep("code");
     if (nextCode.length === 6) {
       setCode(nextCode);
-      setNotice("The code is in the field. Checking it now.");
+      // setNotice("The code is in the field. Checking it now.");
       return;
     }
     setCode("");
@@ -172,10 +172,7 @@ export function AuthPanel() {
             aria-describedby={error ? errorId : undefined}
             value={code}
             onChange={(event) => setCode(digits(event.target.value))}
-            className={cn(
-              "min-h-16 w-full rounded-sm border border-border bg-card px-3 py-3 text-center font-heading text-[length:var(--text-title)] font-semibold leading-none tracking-[0.22em] text-foreground tabular-nums",
-              focusRing,
-            )}
+            className={cn(fieldControl, "text-center font-heading font-semibold tracking-[0.22em] tabular-nums", focusRing)}
           />
         </div>
         {notice ? (
@@ -189,9 +186,14 @@ export function AuthPanel() {
             {error}
           </p>
         ) : null}
-        <button type="submit" className={cn(primaryButton, "gap-2", focusRing)} disabled={busy}>
-          {busy ? "Checking the code" : "Verify"}
-          {busy ? <Spinner /> : null}
+        <button
+          type="submit"
+          className={cn(primaryButton, "gap-1.5 text-[length:var(--text-label)]", focusRing)}
+          disabled={busy}
+          aria-busy={busy}
+        >
+          {busy ? "Checking" : "Verify"}
+          {busy ? <Spinner className="size-3.5" /> : null}
         </button>
         <button type="button" className={cn(chip(false), "w-fit")} onClick={() => void sendCode()} disabled={busy}>
           Email a new code
@@ -241,20 +243,25 @@ export function AuthPanel() {
           className={cn(fieldControl, focusRing)}
         />
       </div>
-      {busy ? (
+      {/* {busy ? (
         <p className="flex items-center gap-2 text-base leading-relaxed text-muted-foreground" role="status">
           Sending a 6-digit code to your email.
           <Spinner />
         </p>
-      ) : null}
+      ) : null} */}
       {error ? (
         <p className="text-base leading-relaxed text-accent" role="alert">
           {error}
         </p>
       ) : null}
-      <button type="submit" className={cn(primaryButton, "gap-2", focusRing)} disabled={busy}>
-        {busy ? "Sending the code" : "Email me a code"}
-        {busy ? <Spinner /> : null}
+      <button
+        type="submit"
+        className={cn(primaryButton, "gap-1.5 text-[length:var(--text-label)]", focusRing)}
+        disabled={busy}
+        aria-busy={busy}
+      >
+        {busy ? "Sending" : "Email me a code"}
+        {busy ? <Spinner className="size-3.5" /> : null}
       </button>
     </form>
   );
