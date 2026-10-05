@@ -1,8 +1,8 @@
 "use client";
 
-import { OrderForm } from "@/components/order-form";
+import { OrderForm } from "@/components/order/order-form";
 import { cn, labelText } from "@/lib/cn";
-import type { ServiceBrief } from "@/lib/site";
+import type { ServiceBrief } from "@/types/site";
 
 export function ServiceBriefPanel({ brief, serviceHref }: { brief: ServiceBrief; serviceHref: string | null }) {
   return (

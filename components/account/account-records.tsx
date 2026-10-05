@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { OrderList, type OrderView } from "@/components/order-list";
-import { Spinner } from "@/components/spinner";
-import { useSession } from "@/provider/session-provider";
+import { OrderList } from "@/components/order/order-list";
+import { Spinner } from "@/components/ui/spinner";
 import { apiFetch } from "@/lib/api";
+import { useSession } from "@/providers/session-provider";
+import type { OrderView } from "@/types/order";
 
 export function AccountRecords() {
   const { user, status, isAdmin } = useSession();

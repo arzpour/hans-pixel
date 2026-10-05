@@ -2,24 +2,7 @@ import { apiUrl } from "@/lib/api";
 import { cn, focusRing, labelText } from "@/lib/cn";
 import { formatBytes } from "@/lib/format";
 import { serviceTitle } from "@/lib/site";
-
-export type OrderView = {
-  id: string;
-  serviceHref: string;
-  note: string | null;
-  status: string;
-  createdAt: string;
-  senderName: string | null;
-  senderEmail: string;
-  files: {
-    id: string;
-    name: string;
-    size: number;
-    status: string;
-    partsCompleted: number;
-    partCount: number;
-  }[];
-};
+import type { OrderView } from "@/types/order";
 
 const STATUS_LABEL: Record<string, string> = {
   uploading: "Still sending",

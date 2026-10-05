@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Spinner } from "@/components/spinner";
-import { useSession } from "@/provider/session-provider";
+import { Spinner } from "@/components/ui/spinner";
+import { useSession } from "@/providers/session-provider";
 import { cn, focusRing, labelText, primaryButton } from "@/lib/cn";
 
 export function ProfilePanel() {

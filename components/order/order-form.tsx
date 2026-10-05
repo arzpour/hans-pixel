@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { apiFetch } from "@/lib/api";
 import {
   cn,
@@ -21,9 +21,8 @@ import {
   readUpload,
   rememberUpload,
   uploadFile,
-  type OpenUpload,
-  type UploadTarget,
 } from "@/lib/upload-client";
+import type { OpenUpload, UploadTarget } from "@/types/upload";
 
 type Identity = "loading" | "guest" | "member";
 

@@ -1,12 +1,12 @@
 "use client";
 
-import { AccountRecords } from "@/components/account-records";
-import { Spinner } from "@/components/spinner";
-import { AuthPanel } from "@/components/auth-panel";
-import { ProfilePanel } from "@/components/profile-panel";
-import { ServiceBriefPanel } from "@/components/service-brief";
+import { AccountRecords } from "@/components/account/account-records";
+import { AuthPanel } from "@/components/account/auth-panel";
+import { ProfilePanel } from "@/components/account/profile-panel";
+import { ServiceBriefPanel } from "@/components/service/service-brief";
+import { Spinner } from "@/components/ui/spinner";
 import { cn, labelText } from "@/lib/cn";
-import type { PageContent } from "@/lib/site";
+import type { PageContent } from "@/types/site";
 
 export function ContentPanel({
   content,

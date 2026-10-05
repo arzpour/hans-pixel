@@ -1,23 +1,7 @@
 import { apiFetch } from "@/lib/api";
-
-export type UploadTarget = {
-  id: string;
-  name: string;
-  size: number;
-  partSize: number;
-  partCount: number;
-  mode: "presigned" | "direct";
-};
-
-type SignedPart = { partNumber: number; url: string };
+import type { OpenUpload, SignedPart, UploadTarget } from "@/types/upload";
 
 const STORAGE_PREFIX = "hans-pixel-upload:";
-
-export type OpenUpload = {
-  serviceHref: string;
-  orderId: string;
-  files: UploadTarget[];
-};
 
 async function readError(response: Response) {
   const data = (await response.json().catch(() => null)) as { error?: unknown } | null;

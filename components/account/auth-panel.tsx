@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
-import { Spinner } from "@/components/spinner";
-import { useSession, type SessionUser } from "@/provider/session-provider";
+import { Spinner } from "@/components/ui/spinner";
+import { useSession } from "@/providers/session-provider";
+import type { SessionUser } from "@/types/session";
 import { apiFetch } from "@/lib/api";
 import { cn, fieldControl, fieldLabel, focusRing, primaryButton } from "@/lib/cn";
 

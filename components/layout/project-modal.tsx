@@ -4,7 +4,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useEffect, useId, useRef } from "react";
 import { cn, focusRing, primaryButton } from "@/lib/cn";
-import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 type ProjectModalProps = {
   open: boolean;

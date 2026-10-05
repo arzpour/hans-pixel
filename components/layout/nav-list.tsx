@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import type { KeyboardEvent, MouseEvent } from "react";
-import { SocialLinks } from "@/components/social-links";
+import { SocialLinks } from "@/components/layout/social-links";
 import { cn, focusRing } from "@/lib/cn";
-import type { NavNode } from "@/lib/site";
+import type { NavNode } from "@/types/site";
 
 type NavListProps = {
   items: NavNode[];

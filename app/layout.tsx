@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Space_Grotesk } from "next/font/google";
-import { SessionProvider } from "@/provider/session-provider";
-import { Stage } from "@/components/stage";
+import { Stage } from "@/components/layout/stage";
+import { SessionProvider } from "@/providers/session-provider";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 

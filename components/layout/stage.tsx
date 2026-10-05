@@ -8,17 +8,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ContentPanel } from "@/components/content-panel";
-import { CursorFollower } from "@/components/cursor-follower";
-import { MotionBackground, sceneFromPath } from "@/components/motion-background";
-import { NavList } from "@/components/nav-list";
-import { ProjectModal } from "@/components/project-modal";
-import { SkipLink } from "@/components/skip-link";
+import { ContentPanel } from "@/components/layout/content-panel";
+import { CursorFollower } from "@/components/layout/cursor-follower";
+import { MotionBackground, sceneFromPath } from "@/components/layout/motion-background";
+import { NavList } from "@/components/layout/nav-list";
+import { ProjectModal } from "@/components/layout/project-modal";
+import { SkipLink } from "@/components/layout/skip-link";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { cn, focusRing } from "@/lib/cn";
-import { useSession } from "@/provider/session-provider";
 import { ACCOUNT, NAV, SITE, accountLabel, accountMenu, activeContent, isValidPath, parentHref, resolveRoute } from "@/lib/site";
-import type { NavNode, PageContent } from "@/lib/site";
-import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
+import { useSession } from "@/providers/session-provider";
+import type { NavNode, PageContent } from "@/types/site";
 
 gsap.registerPlugin(Flip, useGSAP);
 
