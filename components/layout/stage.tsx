@@ -72,7 +72,7 @@ function BrandLogo() {
 
 const openingAccount: PageContent = {
   title: "Loading your account.",
-  lead: "Getting your name and menu.",
+  lead: "",
   pending: true,
   blocks: [],
 };

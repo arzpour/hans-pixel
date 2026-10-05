@@ -1,5 +1,5 @@
-import { apiUrl } from "@/lib/api";
-import { cn, focusRing, labelText } from "@/lib/cn";
+import { DownloadFile } from "@/components/order/download-file";
+import { cn, labelText } from "@/lib/cn";
 import { formatBytes } from "@/lib/format";
 import { serviceTitle } from "@/lib/site";
 import type { OrderView } from "@/types/order";
@@ -24,11 +24,6 @@ function orderDate(value: string) {
     minute: "2-digit",
   });
 }
-
-const downloadLink = cn(
-  "inline-flex min-h-11 shrink-0 items-center border border-border px-3 font-heading text-[length:var(--text-label)] uppercase tracking-[0.08em] text-foreground no-underline hover:border-accent",
-  focusRing,
-);
 
 export function OrderList({ orders, showSender = false }: { orders: OrderView[]; showSender?: boolean }) {
   if (orders.length === 0) {
@@ -90,9 +85,7 @@ export function OrderList({ orders, showSender = false }: { orders: OrderView[];
                       </p>
                     </div>
                     {stored ? (
-                      <a className={downloadLink} href={apiUrl(`/api/uploads/${file.id}/download`)}>
-                        Download
-                      </a>
+                      <DownloadFile fileId={file.id} name={file.name} />
                     ) : (
                       <p className="text-base leading-relaxed text-muted-foreground">Not stored yet.</p>
                     )}
