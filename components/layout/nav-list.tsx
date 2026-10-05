@@ -82,7 +82,10 @@ export function NavList({
           const ancestor = item.id === ancestorId;
           const selected = current || ancestor;
           return (
-            <li key={item.id} className="min-w-0">
+            <li
+              key={item.id}
+              className={cn("min-w-0", align === "center" && "flex w-full flex-col items-center")}
+            >
               <Link
                 href={item.href}
                 data-nav-link
@@ -109,7 +112,12 @@ export function NavList({
                     : "text-foreground hover:text-muted-foreground",
                 )}
               >
-                <span className="[overflow-wrap:break-word] [text-shadow:0_2px_18px_rgb(0_0_0_/_0.45)]">
+                <span
+                  className={cn(
+                    "[overflow-wrap:break-word] [text-shadow:0_2px_18px_rgb(0_0_0_/_0.45)]",
+                    align === "center" && "text-center",
+                  )}
+                >
                   {item.label}
                 </span>
                 <span
