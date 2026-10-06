@@ -1,9 +1,18 @@
 "use client";
 
-import { useId, useState } from "react";
+import { Check, Upload } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useId, useRef, useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
+import { apiFetch } from "@/lib/api";
 import { cn, fieldControl, fieldLabel, focusRing, labelText, primaryButton } from "@/lib/cn";
 import { formatBytes } from "@/lib/format";
+import { MAX_FILE_BYTES } from "@/lib/limits";
+import { ACCOUNT } from "@/lib/site";
+import { forgetUpload, matchUploadFiles, readUpload, rememberUpload, uploadFile } from "@/lib/upload-client";
+import type { OrderView } from "@/types/order";
 import type { ServiceBrief } from "@/types/site";
+import type { OpenUpload, UploadTarget } from "@/types/upload";
 
 const outlineButton =
   "inline-flex min-h-11 cursor-pointer items-center justify-center border border-border bg-transparent px-[18px] font-heading text-[length:var(--text-label)] uppercase tracking-[0.08em] text-foreground transition-colors duration-200 hover:border-accent";
@@ -11,7 +20,14 @@ const outlineButton =
 const sectionTitle =
   "font-heading text-[length:var(--text-label)] font-semibold uppercase tracking-[0.14em] text-accent";
 
-export function ServiceOffer({ brief }: { brief: ServiceBrief }) {
+type ChosenFile = {
+  key: string;
+  file: File;
+  status: "waiting" | "sending" | "sent";
+  ratio: number;
+};
+
+export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serviceHref: string | null }) {
   const offer = brief.offer;
   const id = useId();
   const noteId = `${id}-quantity-note`;
@@ -19,7 +35,50 @@ export function ServiceOffer({ brief }: { brief: ServiceBrief }) {
   const [quantity, setQuantity] = useState("1");
   const [note, setNote] = useState("");
   const [fields, setFields] = useState<Record<string, string>>({});
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<ChosenFile[]>([]);
+  const [identity, setIdentity] = useState<"loading" | "guest" | "member">("loading");
+  const [email, setEmail] = useState<string | null>(null);
+  const [priorCount, setPriorCount] = useState<number | null>(null);
+  const [paid, setPaid] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [pending, setPending] = useState<OpenUpload | null>(null);
+  const filesRef = useRef<ChosenFile[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const sendController = useRef<AbortController | null>(null);
+  const activeOrderId = useRef<string | null>(null);
+  const batchKeys = useRef<Set<string>>(new Set());
+  const stopReason = useRef<"remove" | null>(null);
+  const resumeAfterRemove = useRef(false);
+
+  useEffect(() => {
+    if (!serviceHref) return;
+    let active = true;
+    void (async () => {
+      const response = await apiFetch("/api/auth/session");
+      const data = (await response.json().catch(() => null)) as { user: { email: string } | null } | null;
+      if (!active) return;
+      const saved = readUpload(serviceHref);
+      if (saved) activeOrderId.current = saved.orderId;
+      setPending(saved);
+      if (!data?.user) {
+        setIdentity("guest");
+        setPriorCount(0);
+        return;
+      }
+      setIdentity("member");
+      setEmail(data.user.email);
+      const ordersResponse = await apiFetch("/api/orders");
+      const ordersData = (await ordersResponse.json().catch(() => null)) as { orders?: OrderView[] } | null;
+      if (!active) return;
+      const mine = (ordersData?.orders ?? []).filter((order) => order.senderEmail === data.user?.email);
+      setPriorCount(mine.length);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [serviceHref]);
 
   if (!offer) return null;
 
@@ -28,6 +87,157 @@ export function ServiceOffer({ brief }: { brief: ServiceBrief }) {
     : null;
   const noteLabel = offer.noteLabel ?? "Add your editing notes";
   const noteHint = offer.noteHint ?? "Tell us what you'd like to change or achieve with your image.";
+  const returning = (priorCount ?? 0) > 0;
+  const needsPayment = identity === "member" && returning && !paid;
+
+  const orderNote = () => {
+    const lines: string[] = [];
+    if (ndeOn && offer.ndeTitle) lines.push("NDE: yes (+25%)");
+    if (offer.quantityLabel && quantity.trim()) lines.push(`${offer.quantityLabel}: ${quantity.trim()}`);
+    for (const field of offer.fields ?? []) {
+      const value = fields[field.label]?.trim();
+      if (value) lines.push(`${field.label}: ${value}`);
+    }
+    if (note.trim()) lines.push(note.trim());
+    return lines.join("\n");
+  };
+
+  const updateFiles = (recipe: (current: ChosenFile[]) => ChosenFile[]) => {
+    const next = recipe(filesRef.current);
+    filesRef.current = next;
+    setFiles(next);
+  };
+
+  const removeFile = (key: string) => {
+    const target = filesRef.current.find((item) => item.key === key);
+    if (!target || target.status === "sent") return;
+    updateFiles((current) => current.filter((item) => item.key !== key));
+    if (!sendController.current) return;
+    stopReason.current = "remove";
+    sendController.current.abort();
+  };
+
+  const markFile = (key: string, status: ChosenFile["status"], ratio: number) => {
+    updateFiles((current) => current.map((item) => (item.key === key ? { ...item, status, ratio } : item)));
+  };
+
+  const sendPairs = async (
+    pairs: { key: string; target: UploadTarget; file: File }[],
+    signal: AbortSignal,
+  ) => {
+    for (let index = 0; index < pairs.length; index += 1) {
+      if (signal.aborted) throw new DOMException("Send stopped.", "AbortError");
+      const pair = pairs[index];
+      if (!pair) continue;
+      markFile(pair.key, "sending", 0);
+      await uploadFile(pair.file, pair.target, (ratio) => markFile(pair.key, "sending", ratio), signal);
+      markFile(pair.key, "sent", 1);
+    }
+  };
+
+  const send = async () => {
+    const chosen = filesRef.current.filter((item) => item.status !== "sent");
+    if (!serviceHref || chosen.length === 0 || sendController.current || needsPayment) return;
+    const tooLarge = chosen.find((item) => item.file.size > MAX_FILE_BYTES);
+    if (tooLarge) {
+      setError(`${tooLarge.file.name} is over 100 GB.`);
+      return;
+    }
+    const controller = new AbortController();
+    sendController.current = controller;
+    batchKeys.current = new Set(chosen.map((item) => item.key));
+    setBusy(true);
+    setError(null);
+    setSent(false);
+    try {
+      const matched = pending ? matchUploadFiles(pending.files, chosen.map((item) => item.file)) : null;
+      if (matched && pending) {
+        const pairs = matched
+          .map((pair) => {
+            const source = chosen.find((item) => item.file === pair.file);
+            return source ? { key: source.key, target: pair.target, file: pair.file } : null;
+          })
+          .filter((pair): pair is { key: string; target: UploadTarget; file: File } => Boolean(pair));
+        await sendPairs(pairs, controller.signal);
+        forgetUpload(serviceHref);
+        setPending(null);
+      } else {
+        const response = await apiFetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            serviceHref,
+            note: orderNote(),
+            files: chosen.map((item) => ({ name: item.file.name, size: item.file.size, type: item.file.type })),
+          }),
+          signal: controller.signal,
+        });
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+          orderId?: string;
+          files?: UploadTarget[];
+        } | null;
+        if (response.status === 401) {
+          setIdentity("guest");
+          setError("Verify your identity before you place an order.");
+          return;
+        }
+        if (!response.ok || !data?.orderId || !data.files) {
+          throw new Error(data?.error || "The order could not be opened.");
+        }
+        activeOrderId.current = data.orderId;
+        const openUpload: OpenUpload = { serviceHref, orderId: data.orderId, files: data.files };
+        rememberUpload(openUpload);
+        setPending(openUpload);
+        const pairs = data.files
+          .map((target, index) => {
+            const source = chosen[index];
+            return source ? { key: source.key, target, file: source.file } : null;
+          })
+          .filter((pair): pair is { key: string; target: UploadTarget; file: File } => Boolean(pair));
+        await sendPairs(pairs, controller.signal);
+        forgetUpload(serviceHref);
+        setPending(null);
+      }
+      setSent(true);
+      setPriorCount((count) => (count ?? 0) + 1);
+      setPaid(false);
+    } catch (caught) {
+      if (controller.signal.aborted || (caught instanceof DOMException && caught.name === "AbortError")) {
+        const orderId = activeOrderId.current;
+        if (orderId) void apiFetch(`/api/orders/${orderId}/cancel`, { method: "POST" });
+        activeOrderId.current = null;
+        forgetUpload(serviceHref);
+        setPending(null);
+        const removed = stopReason.current === "remove";
+        stopReason.current = null;
+        updateFiles((current) =>
+          current.map((item) =>
+            batchKeys.current.has(item.key) ? { ...item, status: "waiting", ratio: 0 } : item,
+          ),
+        );
+        if (removed) {
+          setError(null);
+          resumeAfterRemove.current = filesRef.current.some((item) => item.status !== "sent");
+        } else {
+          setError("Send stopped. This order is cancelled.");
+        }
+      } else {
+        updateFiles((current) =>
+          current.map((item) => (item.status === "sending" ? { ...item, status: "waiting", ratio: 0 } : item)),
+        );
+        setError(caught instanceof Error ? caught.message : "The send stopped. Choose the same files again to continue.");
+        setPending(serviceHref ? readUpload(serviceHref) : null);
+      }
+    } finally {
+      if (sendController.current === controller) sendController.current = null;
+      setBusy(false);
+    }
+    if (resumeAfterRemove.current) {
+      resumeAfterRemove.current = false;
+      void send();
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -148,19 +358,84 @@ export function ServiceOffer({ brief }: { brief: ServiceBrief }) {
         })}
 
         <div className="flex flex-col items-start gap-3">
-          <label htmlFor={`${id}-files`} className={cn(outlineButton, "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-ring")}>
+          <button
+            type="button"
+            className={cn(outlineButton, focusRing)}
+            onClick={() => fileInputRef.current?.click()}
+          >
             Upload here
-            <input
-              id={`${id}-files`}
-              type="file"
-              multiple
-              className="sr-only"
-              onChange={(event) => {
-                setFiles(Array.from(event.target.files ?? []));
-                event.target.value = "";
-              }}
-            />
-          </label>
+          </button>
+          <input
+            ref={fileInputRef}
+            id={`${id}-files`}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={(event) => {
+              const picked = Array.from(event.target.files ?? []).map((file) => ({
+                key: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+                file,
+                status: "waiting" as const,
+                ratio: 0,
+              }));
+              updateFiles((current) => [...current, ...picked]);
+              event.target.value = "";
+            }}
+          />
+          {files.length > 0 ? (
+            <ul className="flex w-full max-w-md flex-col gap-3" aria-live="polite">
+              {files.map((item) => {
+                const sentFile = item.status === "sent";
+                const sending = item.status === "sending";
+                return (
+                  <li key={item.key} className="flex items-start gap-3 border-t border-border pt-3">
+                    {sentFile ? (
+                      <Check className="mt-1 size-4 shrink-0 text-foreground" aria-hidden="true" />
+                    ) : (
+                      <Upload className="mt-1 size-4 shrink-0 text-accent" aria-hidden="true" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-base text-foreground">{item.file.name}</p>
+                      <p className={cn(labelText, "mt-1")}>
+                        {formatBytes(item.file.size)}
+                        {sentFile ? " · Sent" : sending ? ` · Sending ${Math.round(item.ratio * 100)}%` : " · Not sent"}
+                      </p>
+                      {sending ? (
+                        <div
+                          className="mt-2 h-1 bg-muted"
+                          role="progressbar"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={Math.round(item.ratio * 100)}
+                          aria-label={item.file.name}
+                        >
+                          <div className="h-full bg-accent" style={{ width: `${Math.round(item.ratio * 100)}%` }} />
+                        </div>
+                      ) : null}
+                    </div>
+                    {sentFile ? null : (
+                      <button
+                        type="button"
+                        className={cn(
+                          "inline-flex min-h-11 items-center px-2 font-heading text-[length:var(--text-label)] uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground",
+                          focusRing,
+                        )}
+                        aria-label={`Remove ${item.file.name}`}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          removeFile(item.key);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
           <div className="flex w-full max-w-md flex-col gap-1.5">
             <label htmlFor={`${id}-note`} className={fieldLabel}>
               {noteLabel}
@@ -177,21 +452,48 @@ export function ServiceOffer({ brief }: { brief: ServiceBrief }) {
               {noteHint}
             </p>
           </div>
-          <button type="button" className={cn(primaryButton, focusRing)}>
-            Payment
-          </button>
+          {sent ? (
+            <p className="text-base leading-relaxed text-muted-foreground" role="status">
+              Sent{email ? ` from ${email}` : ""}.
+            </p>
+          ) : null}
+          {error ? (
+            <p className="text-base leading-relaxed text-accent" role="alert">
+              {error}
+            </p>
+          ) : null}
+          {identity === "loading" ? (
+            <p className={cn("flex items-center gap-2", labelText)} role="status" aria-busy="true">
+              Checking your orders
+              <Spinner />
+            </p>
+          ) : null}
+          {identity === "guest" ? (
+            <Link href={ACCOUNT.href} className={cn(primaryButton, focusRing)}>
+              Verify your identity
+            </Link>
+          ) : null}
+          {identity === "member" && priorCount === 0 ? (
+            <p className="text-base leading-relaxed text-muted-foreground">Your first send is free.</p>
+          ) : null}
+          {needsPayment ? (
+            <button type="button" className={cn(primaryButton, focusRing)} onClick={() => setPaid(true)}>
+              Payment
+            </button>
+          ) : null}
+          {identity === "member" && priorCount !== null && !needsPayment ? (
+            <button
+              type="button"
+              className={cn(primaryButton, "gap-2", focusRing)}
+              disabled={busy || priorCount === null || !files.some((item) => item.status !== "sent")}
+              aria-busy={busy}
+              onClick={() => void send()}
+            >
+              {busy ? "Sending" : "Send"}
+              {busy ? <Spinner /> : null}
+            </button>
+          ) : null}
         </div>
-
-        {files.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {files.map((file) => (
-              <li key={`${file.name}-${file.size}`} className="border-t border-border pt-2">
-                <span className="block truncate text-base text-foreground">{file.name}</span>
-                <span className={cn(labelText, "mt-1 block")}>{formatBytes(file.size)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
       </div>
     </div>
   );

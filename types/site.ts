@@ -43,14 +43,21 @@ export type ContentBlock =
   | { type: "list"; items: string[] }
   | { type: "heading"; text: string }
   | { type: "steps"; items: { index: string; title: string; text: string }[] }
-  | { type: "cases"; items: { title: string; meta: string; year: string; blurb: string }[] }
+  | {
+      type: "cases";
+      items: { title: string; meta: string; year: string; blurb: string }[];
+    }
   | { type: "stats"; items: { value: string; label: string }[] }
   | { type: "service"; brief: ServiceBrief }
-  | { type: "shop"; items: { title: string; price: string; days: string; blurb: string }[] }
+  | {
+      type: "shop";
+      items: { title: string; price: string; days: string; blurb: string }[];
+    }
   | { type: "membership"; plans: MembershipPlan[] }
   | { type: "auth" }
   | { type: "profile" }
-  | { type: "orders" };
+  | { type: "orders" }
+  | { type: "wallet" };
 
 export type PageContent = {
   eyebrow?: string;

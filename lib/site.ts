@@ -1,4 +1,9 @@
-import type { NavNode, PageContent, ResolvedRoute, ServiceBrief } from "@/types/site";
+import type {
+  NavNode,
+  PageContent,
+  ResolvedRoute,
+  ServiceBrief,
+} from "@/types/site";
 
 export const SITE = {
   name: "Hans Pixel",
@@ -22,13 +27,26 @@ function service(
     title: title || "",
     lead: lead || "",
     blocks: [
-      { type: "service", brief: brief || { describe: "", beforeLabel: "", afterLabel: "", price: "", time: "" } },
+      {
+        type: "service",
+        brief: brief || {
+          describe: "",
+          beforeLabel: "",
+          afterLabel: "",
+          price: "",
+          time: "",
+        },
+      },
       ...(extras.length ? [{ type: "list" as const, items: extras }] : []),
     ],
   };
 }
 
-function comingSoon(title = "Coming soon.", lead = "This desk is not open yet.", extras: string[] = []): PageContent {
+function comingSoon(
+  title = "Coming soon.",
+  lead = "This desk is not open yet.",
+  extras: string[] = [],
+): PageContent {
   return {
     title,
     lead,
@@ -44,7 +62,8 @@ export const NAV: NavNode[] = [
     href: "/hans-pixel",
     index: "01",
     content: {
-      title: "A visual post-production studio for images, film, and digital work.",
+      title:
+        "A visual post-production studio for images, film, and digital work.",
       lead: "We edit, refine, and shape visual content for photographers, filmmakers, brands, and creative teams.",
       blocks: [
         { type: "heading", text: "About Hans Pixel" },
@@ -123,7 +142,12 @@ export const NAV: NavNode[] = [
             price: "0.15$ / image",
             time: "Up to 1000 pictures / 72 hours",
             offer: {
-              services: ["Culling", "Exposure balance", "Color adjustment", "Noise reduction"],
+              services: [
+                "Culling",
+                "Exposure balance",
+                "Color adjustment",
+                "Noise reduction",
+              ],
               ndeTitle: "NDE",
               ndeDetail:
                 "Fast, polished edits delivered the next day, keeping your workflow moving without compromising on quality.",
@@ -208,7 +232,13 @@ export const NAV: NavNode[] = [
             price: "24$ / image",
             time: "Up to 50 pictures / 72 hours",
             offer: {
-              services: ["Color correction", "Retouch", "Body liquify", "Removal", "Color preset"],
+              services: [
+                "Color correction",
+                "Retouch",
+                "Body liquify",
+                "Removal",
+                "Color preset",
+              ],
               quantityLabel: "Number of photos",
               quantityNote:
                 "If you submit fewer photos than the selected quantity, the remaining balance will be refunded to your wallet. If you submit more, we will randomly select the specified number of photos for editing.",
@@ -278,7 +308,8 @@ export const NAV: NavNode[] = [
               priceNote:
                 "Our Manipulation service is priced based on the editing time required for each project. The base rate is $95 USD for up to 2 hours of editing. If your project requires additional time, the cost will increase accordingly based on the extra editing time. Each project is carefully reviewed to estimate the required editing time before the work begins.",
               noteLabel: "Add your editing notes",
-              noteHint: "Tell us what you'd like to change or achieve with your image.",
+              noteHint:
+                "Tell us what you'd like to change or achieve with your image.",
             },
           },
         ),
@@ -298,7 +329,13 @@ export const NAV: NavNode[] = [
             price: "4$ / image",
             time: "10 pages / 24 hours",
             offer: {
-              services: ["Color correction", "Retouch", "Body liquify", "Removal", "Design"],
+              services: [
+                "Color correction",
+                "Retouch",
+                "Body liquify",
+                "Removal",
+                "Design",
+              ],
               quantityLabel: "Number of photos",
               quantityNote:
                 "If you submit fewer photos than the selected quantity, the remaining balance will be refunded to your wallet. If you submit more, we will randomly select the specified number of photos for editing.",
@@ -314,7 +351,8 @@ export const NAV: NavNode[] = [
                 },
               ],
               noteLabel: "Add your editing notes",
-              noteHint: "Tell us what you'd like to change or achieve with your image.",
+              noteHint:
+                "Tell us what you'd like to change or achieve with your image.",
             },
           },
         ),
@@ -384,7 +422,12 @@ export const NAV: NavNode[] = [
             time: "3–7 days",
             days: "7 days",
           },
-          ["Cut and trimming", "Color correction", "Music synchronization", "Transition"],
+          [
+            "Cut and trimming",
+            "Color correction",
+            "Music synchronization",
+            "Transition",
+          ],
         ),
       },
       {
@@ -494,7 +537,12 @@ export const NAV: NavNode[] = [
             time: "3–5 days",
             days: "5 days",
           },
-          ["Exposure recovery", "Shadow detail", "Highlight control", "Natural grade"],
+          [
+            "Exposure recovery",
+            "Shadow detail",
+            "Highlight control",
+            "Natural grade",
+          ],
         ),
       },
     ],
@@ -524,67 +572,83 @@ export const NAV: NavNode[] = [
         label: "Brand Identity",
         href: "/graphic/brand",
         index: "01",
-        content: comingSoon("Coming soon.", "Brand identity work is on the way.", [
-          "Logo Design",
-          "Color System",
-          "Typography",
-          "Brand Guidelines",
-          "Custom Icons",
-          "Pattern Design",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Brand identity work is on the way.",
+          [
+            "Logo Design",
+            "Color System",
+            "Typography",
+            "Brand Guidelines",
+            "Custom Icons",
+            "Pattern Design",
+          ],
+        ),
       },
       {
         id: "stationery",
         label: "Stationery Design",
         href: "/graphic/stationery",
         index: "02",
-        content: comingSoon("Coming soon.", "Stationery design work is on the way.", [
-          "Business Cards",
-          "Letterheads",
-          "Envelopes",
-          "Presentation Folders",
-          "Notepads",
-          "Employee ID Cards",
-          "Email Signatures",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Stationery design work is on the way.",
+          [
+            "Business Cards",
+            "Letterheads",
+            "Envelopes",
+            "Presentation Folders",
+            "Notepads",
+            "Employee ID Cards",
+            "Email Signatures",
+          ],
+        ),
       },
       {
         id: "social",
         label: "Social Media",
         href: "/graphic/social",
         index: "03",
-        content: comingSoon("Coming soon.", "Social media design work is on the way.", [
-          "Social Media Posts",
-          "Carousels",
-          "Stories",
-          "Highlight Covers",
-          "Social Media Templates",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Social media design work is on the way.",
+          [
+            "Social Media Posts",
+            "Carousels",
+            "Stories",
+            "Highlight Covers",
+            "Social Media Templates",
+          ],
+        ),
       },
       {
         id: "print",
         label: "Marketing & Print",
         href: "/graphic/print",
         index: "04",
-        content: comingSoon("Coming soon.", "Marketing and print work is on the way.", [
-          "Poster Design",
-          "Banner Design",
-          "Menu Design",
-          "Catalog Design",
-          "Packaging Design",
-          "Print Design",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Marketing and print work is on the way.",
+          [
+            "Poster Design",
+            "Banner Design",
+            "Menu Design",
+            "Catalog Design",
+            "Packaging Design",
+            "Print Design",
+          ],
+        ),
       },
       {
         id: "digital",
         label: "Digital",
         href: "/graphic/digital",
         index: "05",
-        content: comingSoon("Coming soon.", "Digital design work is on the way.", [
-          "Website Design",
-          "Web Banners",
-          "Digital Templates",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Digital design work is on the way.",
+          ["Website Design", "Web Banners", "Digital Templates"],
+        ),
       },
     ],
   },
@@ -599,12 +663,16 @@ export const NAV: NavNode[] = [
         label: "Photo",
         href: "/tools/photo",
         index: "01",
-        content: comingSoon("Coming soon.", "Photo assets for the still desk.", [
-          "Color Presets",
-          "Retouching Brushes",
-          "Creative Assets",
-          "Album PSD Templates",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Photo assets for the still desk.",
+          [
+            "Color Presets",
+            "Retouching Brushes",
+            "Creative Assets",
+            "Album PSD Templates",
+          ],
+        ),
       },
       {
         id: "tools-video",
@@ -624,16 +692,20 @@ export const NAV: NavNode[] = [
         label: "Graphic Design",
         href: "/tools/graphic",
         index: "03",
-        content: comingSoon("Coming soon.", "Graphic assets for the mark and the feed.", [
-          "Social Media Templates",
-          "Vector Assets",
-          "Mockups",
-          "Fonts & Typography",
-          "Banners & Ads",
-          "Icons",
-          "Patterns",
-          "Textures",
-        ]),
+        content: comingSoon(
+          "Coming soon.",
+          "Graphic assets for the mark and the feed.",
+          [
+            "Social Media Templates",
+            "Vector Assets",
+            "Mockups",
+            "Fonts & Typography",
+            "Banners & Ads",
+            "Icons",
+            "Patterns",
+            "Textures",
+          ],
+        ),
       },
     ],
   },
@@ -724,6 +796,18 @@ export const NAV: NavNode[] = [
           blocks: [{ type: "orders" }],
         },
       },
+      {
+        id: "wallet",
+        label: "Wallet",
+        href: "/account/wallet",
+        index: "03",
+        content: {
+          eyebrow: "Account",
+          title: "Your wallet.",
+          lead: "Coming soon.",
+          blocks: [{ type: "wallet" }],
+        },
+      },
     ],
   },
 ];
@@ -790,7 +874,9 @@ export function resolveRoute(pathname: string): ResolvedRoute {
 
 export function isOrderablePath(pathname: string): boolean {
   const route = resolveRoute(pathname);
-  return Boolean(route.item?.content?.blocks.some((block) => block.type === "service"));
+  return Boolean(
+    route.item?.content?.blocks.some((block) => block.type === "service"),
+  );
 }
 
 export function isValidPath(pathname: string): boolean {
@@ -819,7 +905,9 @@ export function parentHref(route: ResolvedRoute): string {
   return "/";
 }
 
-export function getPageMeta(pathname: string): { title: string; description: string } | null {
+export function getPageMeta(
+  pathname: string,
+): { title: string; description: string } | null {
   const route = resolveRoute(pathname);
   if (!isValidPath(pathname) && pathname !== "/") return null;
 
@@ -852,7 +940,9 @@ export function getPageMeta(pathname: string): { title: string; description: str
 
 export function activeContent(route: ResolvedRoute): PageContent | null {
   if (route.item?.content) return route.item.content;
-  if (route.section?.id === "account" && !route.item) return route.section.content ?? null;
-  if (route.section?.content && !route.section.children) return route.section.content;
+  if (route.section?.id === "account" && !route.item)
+    return route.section.content ?? null;
+  if (route.section?.content && !route.section.children)
+    return route.section.content;
   return null;
 }

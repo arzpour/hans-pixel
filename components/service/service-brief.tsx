@@ -6,7 +6,7 @@ import { cn, labelText } from "@/lib/cn";
 import type { ServiceBrief } from "@/types/site";
 
 export function ServiceBriefPanel({ brief, serviceHref }: { brief: ServiceBrief; serviceHref: string | null }) {
-  if (brief.offer) return <ServiceOffer brief={brief} />;
+  if (brief.offer) return <ServiceOffer brief={brief} serviceHref={serviceHref} />;
 
   return (
     <div className="flex flex-col gap-4">
