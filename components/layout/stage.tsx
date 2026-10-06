@@ -438,7 +438,12 @@ export function Stage() {
                   ),
             )}
           >
-            <div className={cn(viewportCenter && "pointer-events-auto w-full max-w-[560px]")}>
+            <div
+              className={cn(
+                viewportCenter && "pointer-events-auto w-full max-w-[560px]",
+                content.layout === "wide" && "w-full max-w-[1040px]",
+              )}
+            >
               <ContentPanel key={pathname} content={content} serviceHref={item?.href ?? null} />
             </div>
           </main>

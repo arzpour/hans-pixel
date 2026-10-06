@@ -27,6 +27,17 @@ export type ServiceBrief = {
   offer?: ServiceOffer;
 };
 
+export type MembershipPlan = {
+  name: string;
+  term: string;
+  deposit: string;
+  bonus: string;
+  credit: string;
+  line: string;
+  expiry: string;
+  featured?: boolean;
+};
+
 export type ContentBlock =
   | { type: "paragraph"; text: string }
   | { type: "list"; items: string[] }
@@ -36,6 +47,7 @@ export type ContentBlock =
   | { type: "stats"; items: { value: string; label: string }[] }
   | { type: "service"; brief: ServiceBrief }
   | { type: "shop"; items: { title: string; price: string; days: string; blurb: string }[] }
+  | { type: "membership"; plans: MembershipPlan[] }
   | { type: "auth" }
   | { type: "profile" }
   | { type: "orders" };
@@ -44,7 +56,7 @@ export type PageContent = {
   eyebrow?: string;
   title: string;
   lead?: string;
-  layout?: "rail" | "viewport-center";
+  layout?: "rail" | "viewport-center" | "wide";
   pending?: boolean;
   blocks: ContentBlock[];
 };

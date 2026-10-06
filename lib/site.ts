@@ -424,8 +424,8 @@ export const NAV: NavNode[] = [
         index: "03",
         content: service(
           undefined,
-          "A directed piece, not a trim.",
-          "Cut, grade, motion, sound, and a story from first frame to end card.",
+          "Dynamic Visuals",
+          "Bring your visuals to life with smooth motion, creative transitions, and a polished cinematic feel.",
           {
             // describe: "Motion: picture, grade, graphics, sound, and creative direction.",
             beforeLabel: "Rushes",
@@ -458,8 +458,8 @@ export const NAV: NavNode[] = [
         index: "04",
         content: service(
           undefined,
-          "The whole day on film.",
-          "A full wedding film: ceremony, speeches, and the night — cut, grade, and sound.",
+          "Complete Story",
+          "A complete wedding film crafted to preserve every emotion, detail, and unforgettable moment of the day.",
           {
             // describe: "Full film wedding: long-form edit from the card. Trailer optional.",
             beforeLabel: "Rushes",
@@ -642,7 +642,50 @@ export const NAV: NavNode[] = [
     label: "Membership",
     href: "/membership",
     index: "08",
-    content: comingSoon(),
+    content: {
+      eyebrow: "Membership",
+      title: "Credit for the work ahead.",
+      lead: "Deposit the minimum for a term. Extra credit is added to your wallet. Anything left unused expires when the membership ends.",
+      layout: "wide",
+      blocks: [
+        {
+          type: "membership",
+          plans: [
+            {
+              name: "Essential",
+              term: "3 Months",
+              deposit: "$500",
+              bonus: "5%",
+              credit: "$525",
+              line: "Deposit $500 → Get $525 in Wallet Credit",
+              expiry:
+                "Your credit must be used within 3 months. Any unused balance will expire at the end of the membership period.",
+            },
+            {
+              name: "Advanced",
+              term: "6 Months",
+              deposit: "$1,000",
+              bonus: "10%",
+              credit: "$1,100",
+              line: "Deposit $1,000 → Get $1,100 in Wallet Credit",
+              expiry:
+                "Your credit must be used within 6 months. Any unused balance will expire at the end of the membership period.",
+            },
+            {
+              name: "Elite",
+              term: "12 Months",
+              deposit: "$2,000",
+              bonus: "15%",
+              credit: "$2,300",
+              line: "Deposit $2,000 → Get $2,300 in Wallet Credit",
+              expiry:
+                "Your credit must be used within 12 months. Any unused balance will expire at the end of the membership period.",
+              featured: true,
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     id: "account",

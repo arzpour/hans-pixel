@@ -3,6 +3,7 @@
 import { AccountRecords } from "@/components/account/account-records";
 import { AuthPanel } from "@/components/account/auth-panel";
 import { ProfilePanel } from "@/components/account/profile-panel";
+import { MembershipPlans } from "@/components/membership/membership-plans";
 import { ServiceBriefPanel } from "@/components/service/service-brief";
 import { Spinner } from "@/components/ui/spinner";
 import { cn, labelText } from "@/lib/cn";
@@ -16,11 +17,13 @@ export function ContentPanel({
   serviceHref?: string | null;
 }) {
   const centered = content.layout === "viewport-center";
+  const wide = content.layout === "wide";
 
   return (
     <article
       className={cn(
-        "my-auto flex w-full max-w-[560px] flex-col gap-3.5 py-4",
+        "my-auto flex w-full flex-col gap-3.5 py-4",
+        wide ? "max-w-none" : "max-w-[560px]",
         centered && "items-center text-center",
       )}
     >
@@ -218,6 +221,9 @@ export function ContentPanel({
               ))}
             </ul>
           );
+        }
+        if (block.type === "membership") {
+          return <MembershipPlans key={index} plans={block.plans} />;
         }
         if (block.type === "auth") {
           return (
