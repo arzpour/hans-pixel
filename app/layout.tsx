@@ -23,6 +23,15 @@ export const metadata: Metadata = {
     template: `%s`,
   },
   description: SITE.description,
+  applicationName: SITE.name,
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
+  appleWebApp: {
+    capable: true,
+    title: SITE.name,
+    statusBarStyle: "black",
+  },
   icons: {
     icon: [
       { url: "/hans-pixel-mark.png?v=hp-mark-1", type: "image/png", sizes: "64x64" },
@@ -49,6 +58,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
           <Stage />
         </SessionProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js", { scope: "/" }); }`,
+          }}
+        />
       </body>
     </html>
   );

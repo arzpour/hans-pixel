@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>Hans Pixel — Offline</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #000;
+        color: #fafafa;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+
+      main {
+        min-height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      img {
+        width: 4.5rem;
+        height: 4.5rem;
+        image-rendering: pixelated;
+      }
+
+      h1 {
+        margin: 1.25rem 0 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+
+      p {
+        margin: 0;
+        max-width: 22rem;
+        color: #d4d4d4;
+        line-height: 1.5;
+      }
+
+      button {
+        margin-top: 1.5rem;
+        border: 0;
+        background: #e11d2e;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        padding: 0.75rem 1.25rem;
+        cursor: pointer;
+      }
+
+      button:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div>
+        <img src="/icons/icon-192.png" alt="" width="192" height="192" />
+        <h1>You’re offline</h1>
+        <p>Hans Pixel needs a connection for the studio, orders, and your account.</p>
+        <button type="button" onclick="location.reload()">Try again</button>
+      </div>
+    </main>
+  </body>
+</html>

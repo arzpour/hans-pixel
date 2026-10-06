@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         source: "/hans-pixel-mark-180.png",
         headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
       },
+      {
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+      },
     ];
   },
 };
