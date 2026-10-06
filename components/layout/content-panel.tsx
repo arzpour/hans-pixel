@@ -24,9 +24,14 @@ export function ContentPanel({
         centered && "items-center text-center",
       )}
     >
-      {content.eyebrow ? <p className={cn("content-piece", labelText)}>{content.eyebrow}</p> : null}
+      {content.eyebrow ? (
+        <p className={cn("content-piece", labelText)}>{content.eyebrow}</p>
+      ) : null}
       <div
-        className={cn("content-piece flex w-full items-center gap-3", centered && "justify-center")}
+        className={cn(
+          "content-piece flex w-full items-center gap-3",
+          centered && "justify-center",
+        )}
         role={content.pending ? "status" : undefined}
         aria-live={content.pending ? "polite" : undefined}
       >
@@ -73,15 +78,46 @@ export function ContentPanel({
             </h2>
           );
         }
+        if (block.type === "list") {
+          return (
+            <ul
+              key={index}
+              className={cn(
+                "content-piece flex flex-col gap-2.5 text-foreground",
+                centered ? "items-center" : "items-stretch",
+              )}
+            >
+              {block.items.map((item) => (
+                <li
+                  key={item}
+                  className={cn(
+                    "relative text-base leading-relaxed",
+                    centered
+                      ? "pl-0 before:hidden"
+                      : "pl-[18px] before:absolute before:top-[0.55em] before:left-0 before:size-1.5 before:bg-accent",
+                  )}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          );
+        }
         if (block.type === "steps") {
           return (
-            <ol key={index} className="content-piece flex w-full flex-col gap-4">
+            <ol
+              key={index}
+              className="content-piece flex w-full flex-col gap-4"
+            >
               {block.items.map((item) => (
                 <li
                   key={item.index}
                   className="grid grid-cols-[48px_minmax(0,1fr)] gap-3 border-t border-border pt-3 text-start"
                 >
-                  <span className={cn(labelText, "text-accent")} aria-hidden="true">
+                  <span
+                    className={cn(labelText, "text-accent")}
+                    aria-hidden="true"
+                  >
                     {item.index}
                   </span>
                   <div>
@@ -97,34 +133,12 @@ export function ContentPanel({
             </ol>
           );
         }
-        // if (block.type === "list") {
-        //   return (
-        //     <ul
-        //       key={index}
-        //       className={cn(
-        //         "content-piece flex flex-col gap-2.5 text-foreground",
-        //         centered ? "items-center" : "items-stretch",
-        //       )}
-        //     >
-        //       {block.items.map((item) => (
-        //         <li
-        //           key={item}
-        //           className={cn(
-        //             "relative text-base leading-relaxed",
-        //             centered
-        //               ? "pl-0 before:hidden"
-        //               : "pl-[18px] before:absolute before:top-[0.55em] before:left-0 before:size-1.5 before:bg-accent",
-        //           )}
-        //         >
-        //           {item}
-        //         </li>
-        //       ))}
-        //     </ul>
-        //   );
-        // }
         if (block.type === "stats") {
           return (
-            <dl key={index} className="content-piece grid grid-cols-3 gap-4 py-2 max-md:grid-cols-2">
+            <dl
+              key={index}
+              className="content-piece grid grid-cols-3 gap-4 py-2 max-md:grid-cols-2"
+            >
               {block.items.map((item) => (
                 <div key={item.label}>
                   <dt className={labelText}>{item.label}</dt>
@@ -144,11 +158,16 @@ export function ContentPanel({
                   key={item.title}
                   className="content-piece grid grid-cols-[48px_minmax(0,1fr)] gap-3 border-t border-border py-2 max-md:grid-cols-1"
                 >
-                  <span className={cn(labelText, "max-md:hidden")} aria-hidden="true">
+                  <span
+                    className={cn(labelText, "max-md:hidden")}
+                    aria-hidden="true"
+                  >
                     {String(caseIndex + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <h2 className="font-heading text-lg font-semibold leading-snug">{item.title}</h2>
+                    <h2 className="font-heading text-lg font-semibold leading-snug">
+                      {item.title}
+                    </h2>
                     <p className={labelText}>
                       {item.meta} · {item.year}
                     </p>
@@ -164,7 +183,10 @@ export function ContentPanel({
         if (block.type === "service") {
           return (
             <div key={index}>
-              <ServiceBriefPanel brief={block.brief} serviceHref={serviceHref} />
+              <ServiceBriefPanel
+                brief={block.brief}
+                serviceHref={serviceHref}
+              />
             </div>
           );
         }
@@ -182,7 +204,9 @@ export function ContentPanel({
                     aria-hidden="true"
                   />
                   <div>
-                    <h2 className="font-heading text-lg font-semibold leading-snug">{item.title}</h2>
+                    <h2 className="font-heading text-lg font-semibold leading-snug">
+                      {item.title}
+                    </h2>
                     <p className={labelText}>
                       {item.price} · {item.days}
                     </p>

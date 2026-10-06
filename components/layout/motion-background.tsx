@@ -19,7 +19,7 @@ type SceneId =
   | "ai"
   | "web"
   | "graphic"
-  | "shop"
+  | "tools"
   // | "package"
   | "membership";
 
@@ -37,8 +37,8 @@ const SCENES: { id: SceneId; src: string; alt: string }[] = [
     alt: "Graphic design workspace with color swatches",
   },
   {
-    id: "shop",
-    src: "/bg/shop.jpg",
+    id: "tools",
+    src: "/bg/tools.jpg",
     alt: "Printed photographs laid out for review",
   },
   {
@@ -67,7 +67,7 @@ export function sceneFromPath(pathname: string): SceneId {
   if (pathname.startsWith("/photo")) return "photo";
   if (pathname.startsWith("/video")) return "video";
   if (pathname.startsWith("/graphic")) return "graphic";
-  if (pathname.startsWith("/shop")) return "shop";
+  if (pathname.startsWith("/tools")) return "tools";
   // if (pathname.startsWith("/package")) return "package";
   if (pathname.startsWith("/ai")) return "ai";
   if (pathname.startsWith("/web")) return "web";

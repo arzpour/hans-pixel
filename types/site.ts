@@ -1,3 +1,22 @@
+export type OfferField = {
+  label: string;
+  hint?: string;
+  kind?: "text" | "number";
+};
+
+export type ServiceOffer = {
+  services: string[];
+  ndeTitle?: string;
+  ndeDetail?: string;
+  ndeFee?: string;
+  priceNote?: string;
+  quantityLabel?: string;
+  quantityNote?: string;
+  fields?: OfferField[];
+  noteLabel?: string;
+  noteHint?: string;
+};
+
 export type ServiceBrief = {
   describe?: string;
   beforeLabel: string;
@@ -5,6 +24,7 @@ export type ServiceBrief = {
   price: string;
   time: string;
   days?: string;
+  offer?: ServiceOffer;
 };
 
 export type ContentBlock =

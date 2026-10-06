@@ -1,10 +1,13 @@
 "use client";
 
 import { OrderForm } from "@/components/order/order-form";
+import { ServiceOffer } from "@/components/service/service-offer";
 import { cn, labelText } from "@/lib/cn";
 import type { ServiceBrief } from "@/types/site";
 
 export function ServiceBriefPanel({ brief, serviceHref }: { brief: ServiceBrief; serviceHref: string | null }) {
+  if (brief.offer) return <ServiceOffer brief={brief} />;
+
   return (
     <div className="flex flex-col gap-4">
       {/* <section className="content-piece">
