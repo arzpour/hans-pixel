@@ -32,7 +32,7 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
   const id = useId();
   const noteId = `${id}-quantity-note`;
   const [ndeOn, setNdeOn] = useState(false);
-  const [quantity, setQuantity] = useState("1");
+  const [quantity, setQuantity] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [fields, setFields] = useState<Record<string, string>>({});
   const [files, setFiles] = useState<ChosenFile[]>([]);
@@ -93,7 +93,7 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
   const orderNote = () => {
     const lines: string[] = [];
     if (ndeOn && offer.ndeTitle) lines.push("NDE: yes (+25%)");
-    if (offer.quantityLabel && quantity.trim()) lines.push(`${offer.quantityLabel}: ${quantity.trim()}`);
+    if (offer.quantityLabel && quantity && quantity.trim()) lines.push(`${offer.quantityLabel}: ${quantity.trim()}`);
     for (const field of offer.fields ?? []) {
       const value = fields[field.label]?.trim();
       if (value) lines.push(`${field.label}: ${value}`);
@@ -243,7 +243,7 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
     <div className="flex flex-col gap-4">
       <section className="content-piece flex flex-col gap-2.5">
         <h2 className={sectionTitle}>Services</h2>
-        <ul className="flex flex-col gap-2.5">
+        <ul className="grid grid-cols-2 gap-2.5">
           {offer.services.map((item) => (
             <li key={item} className="relative pl-[18px] text-base leading-relaxed text-foreground">
               <span className="absolute top-[0.55em] left-0 size-1.5 bg-accent" aria-hidden="true" />
@@ -294,33 +294,36 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
               className="mt-1 size-4 shrink-0 accent-accent"
             />
             <span className="min-w-0">
+              <div className="flex gap-2 items-center">
               <span className="font-heading text-base font-semibold uppercase tracking-[0.08em] text-foreground">
                 {nde.title}
               </span>
-              <span className="mt-1 block text-base leading-relaxed text-muted-foreground">{nde.detail}</span>
-              <span className="mt-1 block text-base leading-relaxed text-foreground">{nde.fee}</span>
+              <span className="block text-sm leading-relaxed text-foreground">({nde.fee})</span>
+              </div>
+              <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">({nde.detail})</span>
             </span>
           </label>
         ) : null}
 
         {offer.quantityLabel ? (
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={`${id}-quantity`} className={fieldLabel}>
+            {/* <label htmlFor={`${id}-quantity`} className={fieldLabel}>
               {offer.quantityLabel}
-            </label>
+            </label> */}
             <input
               id={`${id}-quantity`}
               type="number"
               inputMode="numeric"
               min={1}
               step={1}
-              value={quantity}
+              value={quantity ?? undefined}
               aria-describedby={offer.quantityNote ? noteId : undefined}
+              placeholder={offer.quantityLabel}
               onChange={(event) => setQuantity(event.target.value)}
               className={cn(fieldControl, "w-28", focusRing)}
             />
             {offer.quantityNote ? (
-              <p id={noteId} className="max-w-[65ch] text-base leading-relaxed text-muted-foreground">
+              <p id={noteId} className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
                 Note: {offer.quantityNote}
               </p>
             ) : null}
@@ -360,7 +363,7 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
         <div className="flex flex-col items-start gap-3">
           <button
             type="button"
-            className={cn(outlineButton, focusRing)}
+            className={cn(primaryButton, focusRing)}
             onClick={() => fileInputRef.current?.click()}
           >
             Upload here
@@ -437,18 +440,19 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
             </ul>
           ) : null}
           <div className="flex w-full max-w-md flex-col gap-1.5">
-            <label htmlFor={`${id}-note`} className={fieldLabel}>
+            {/* <label htmlFor={`${id}-note`} className={fieldLabel}>
               {noteLabel}
-            </label>
+            </label> */}
             <textarea
               id={`${id}-note`}
               rows={3}
               value={note}
               onChange={(event) => setNote(event.target.value)}
               aria-describedby={`${id}-note-hint`}
+              placeholder={noteLabel}
               className={cn(fieldControl, "min-h-[5.5rem] resize-none", focusRing)}
             />
-            <p id={`${id}-note-hint`} className="text-base leading-relaxed text-muted-foreground">
+            <p id={`${id}-note-hint`} className="text-sm leading-relaxed text-muted-foreground">
               {noteHint}
             </p>
           </div>
