@@ -6,8 +6,10 @@ import { useSession } from "@/providers/session-provider";
 import type { SessionUser } from "@/types/session";
 import { apiFetch } from "@/lib/api";
 import { cn, fieldControl, fieldLabel, focusRing, primaryButton } from "@/lib/cn";
+import { normalizeMobile } from "@/lib/mobile";
 
 const NAME_KEY = "hp-account-name";
+const PHONE_KEY = "hp-account-phone";
 
 function digits(value: string) {
   return value.replace(/\D/g, "").slice(0, 6);
@@ -31,6 +33,7 @@ export function AuthPanel() {
   const [step, setStep] = useState<"form" | "code">("form");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -46,7 +49,7 @@ export function AuthPanel() {
       on ? "border-accent text-foreground" : "border-border text-muted-foreground",
     );
 
-  const verify = async (nextEmail: string, nextCode: string, nextName?: string) => {
+  const verify = async (nextEmail: string, nextCode: string, nextName?: string, nextPhone?: string) => {
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
@@ -55,6 +58,7 @@ export function AuthPanel() {
       email: nextEmail,
       code: nextCode,
       name: nextName || undefined,
+      phone: nextPhone || undefined,
     });
     if (!result.ok) {
       busyRef.current = false;
@@ -64,6 +68,7 @@ export function AuthPanel() {
       return;
     }
     sessionStorage.removeItem(NAME_KEY);
+    sessionStorage.removeItem(PHONE_KEY);
     setSession(result.data.user, Boolean(result.data.isAdmin));
     busyRef.current = false;
     setBusy(false);
@@ -77,13 +82,14 @@ export function AuthPanel() {
     if (mailedCode.length !== 6 || !mailedEmail.includes("@")) return;
     consumedLink.current = true;
     const storedName = sessionStorage.getItem(NAME_KEY)?.trim() ?? "";
+    const storedPhone = sessionStorage.getItem(PHONE_KEY)?.trim() ?? "";
     window.history.replaceState(null, "", "/account");
     setEmail(mailedEmail);
     setCode(mailedCode);
     setStep("code");
     setNotice("The code from your email is in the field. Checking it now.");
     triedCode.current = mailedCode;
-    void verify(mailedEmail, mailedCode, storedName);
+    void verify(mailedEmail, mailedCode, storedName, storedPhone);
     // verify is stable enough for this one-shot link; retried codes go through the field effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, user]);
@@ -92,19 +98,29 @@ export function AuthPanel() {
     if (step !== "code" || code.length !== 6 || triedCode.current === code) return;
     triedCode.current = code;
     const storedName = mode === "up" ? name.trim() : (sessionStorage.getItem(NAME_KEY)?.trim() ?? "");
+    const storedPhone = mode === "up" ? (normalizeMobile(phone) ?? "") : (sessionStorage.getItem(PHONE_KEY)?.trim() ?? "");
     // setNotice("The code is in the field. Checking it now.");
-    void verify(email, code, storedName);
+    void verify(email, code, storedName, storedPhone);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, email, mode, name, step]);
+  }, [code, email, mode, name, phone, step]);
 
   const sendCode = async () => {
     setBusy(true);
     busyRef.current = true;
     setError(null);
     setNotice(null);
-    if (mode === "up" && name.trim()) sessionStorage.setItem(NAME_KEY, name.trim());
-    else sessionStorage.removeItem(NAME_KEY);
-    const result = await postJson<{ devCode?: string }>("/api/auth/request-code", { email });
+    const mobile = mode === "up" ? normalizeMobile(phone) : null;
+    if (mode === "up" && name.trim() && mobile) {
+      sessionStorage.setItem(NAME_KEY, name.trim());
+      sessionStorage.setItem(PHONE_KEY, mobile);
+    } else {
+      sessionStorage.removeItem(NAME_KEY);
+      sessionStorage.removeItem(PHONE_KEY);
+    }
+    const result = await postJson<{ devCode?: string }>(
+      "/api/auth/request-code",
+      mode === "up" ? { email, name: name.trim(), phone: mobile } : { email },
+    );
     setBusy(false);
     busyRef.current = false;
     if (!result.ok) {
@@ -129,6 +145,10 @@ export function AuthPanel() {
       setError("Complete the visible fields.");
       return;
     }
+    if (mode === "up" && !normalizeMobile(phone)) {
+      setError("Enter a mobile number.");
+      return;
+    }
     await sendCode();
   };
 
@@ -142,8 +162,9 @@ export function AuthPanel() {
     triedCode.current = "";
     setCode(nextCode);
     const storedName = mode === "up" ? name.trim() : (sessionStorage.getItem(NAME_KEY)?.trim() ?? "");
+    const storedPhone = mode === "up" ? (normalizeMobile(phone) ?? "") : (sessionStorage.getItem(PHONE_KEY)?.trim() ?? "");
     triedCode.current = nextCode;
-    await verify(email, nextCode, storedName);
+    await verify(email, nextCode, storedName, storedPhone);
   };
 
   if (user) return null;
@@ -214,19 +235,39 @@ export function AuthPanel() {
       </div>
 
       {mode === "up" ? (
-        <div className="flex flex-col gap-2">
-          <label htmlFor={`${id}-name`} className={fieldLabel}>
-            Name
-          </label>
-          <input
-            id={`${id}-name`}
-            name="name"
-            autoComplete="name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className={cn(fieldControl, focusRing)}
-          />
-        </div>
+        <>
+          <div className="flex flex-col gap-2">
+            <label htmlFor={`${id}-name`} className={fieldLabel}>
+              Name
+            </label>
+            <input
+              id={`${id}-name`}
+              name="name"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className={cn(fieldControl, focusRing)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor={`${id}-phone`} className={fieldLabel}>
+              Mobile
+            </label>
+            <input
+              id={`${id}-phone`}
+              name="tel"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              required
+              placeholder="+1 202 555 0123"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              className={cn(fieldControl, focusRing)}
+            />
+          </div>
+        </>
       ) : null}
 
       <div className="flex flex-col gap-2">

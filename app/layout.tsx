@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Space_Grotesk } from "next/font/google";
 import { Stage } from "@/components/layout/stage";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { SessionProvider } from "@/providers/session-provider";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -57,12 +58,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SessionProvider>
           {children}
           <Stage />
+          <ServiceWorkerRegister />
         </SessionProvider>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js", { scope: "/" }); }`,
-          }}
-        />
       </body>
     </html>
   );

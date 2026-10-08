@@ -14,18 +14,23 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     void (async () => {
-      const response = await apiFetch("/api/auth/session");
-      const data = (await response.json().catch(() => null)) as {
-        user: SessionUser | null;
-        isAdmin?: boolean;
-      } | null;
-      if (!active) return;
-      if (data?.user) {
-        setUser(data.user);
-        setIsAdmin(Boolean(data.isAdmin));
-        setStatus("ready");
-        return;
+      try {
+        const response = await apiFetch("/api/auth/session");
+        const data = (await response.json().catch(() => null)) as {
+          user: SessionUser | null;
+          isAdmin?: boolean;
+        } | null;
+        if (!active) return;
+        if (response.ok && data?.user) {
+          setUser(data.user);
+          setIsAdmin(Boolean(data.isAdmin));
+          setStatus("ready");
+          return;
+        }
+      } catch {
+        // The account screen should still open if the API is unreachable.
       }
+      if (!active) return;
       setUser(null);
       setIsAdmin(false);
       setStatus("anonymous");

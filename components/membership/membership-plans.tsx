@@ -1,7 +1,24 @@
-import { cn, labelText } from "@/lib/cn";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn, focusRing, labelText, primaryButton } from "@/lib/cn";
+import { useSession } from "@/providers/session-provider";
 import type { MembershipPlan } from "@/types/site";
 
 export function MembershipPlans({ plans }: { plans: MembershipPlan[] }) {
+  const router = useRouter();
+  const { user, status } = useSession();
+  const [paid, setPaid] = useState<string | null>(null);
+
+  const pay = (planName: string) => {
+    if (status !== "ready" || !user) {
+      router.push("/account");
+      return;
+    }
+    setPaid(planName);
+  };
+
   return (
     <div className="@container w-full">
       <ul className="grid grid-cols-1 gap-4 @3xl:grid-cols-3 @3xl:items-stretch">
@@ -61,9 +78,25 @@ export function MembershipPlans({ plans }: { plans: MembershipPlan[] }) {
               {plan.line}
             </p>
 
-            <p className="relative mt-auto border-t border-border pt-4 text-base leading-relaxed text-pretty text-muted-foreground">
+            <p className="relative border-t border-border pt-4 text-base leading-relaxed text-pretty text-muted-foreground">
               {plan.expiry}
             </p>
+
+            <div className="relative mt-auto flex flex-col gap-3">
+              <button
+                type="button"
+                className={cn(primaryButton, "w-full", focusRing)}
+                onClick={() => pay(plan.name)}
+                disabled={paid === plan.name}
+              >
+                Payment
+              </button>
+              {paid === plan.name ? (
+                <p className="text-base leading-relaxed text-muted-foreground" role="status">
+                  Payment received.
+                </p>
+              ) : null}
+            </div>
           </li>
         ))}
       </ul>

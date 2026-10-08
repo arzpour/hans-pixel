@@ -520,31 +520,6 @@ export const NAV: NavNode[] = [
           ],
         ),
       },
-      {
-        id: "video-nde",
-        label: "NDE",
-        href: "/video/nde",
-        index: "05",
-        content: service(
-          undefined,
-          "Open shadows on the timeline.",
-          "An NDE grade pass for footage that needs lift without a heavy cinematic look.",
-          {
-            // describe: "Video NDE: exposure recovery, shadow detail, and a natural finish on the cut.",
-            beforeLabel: "Flat",
-            afterLabel: "Open",
-            price: "From $120 / minute",
-            time: "3–5 days",
-            days: "5 days",
-          },
-          [
-            "Exposure recovery",
-            "Shadow detail",
-            "Highlight control",
-            "Natural grade",
-          ],
-        ),
-      },
     ],
   },
   {
@@ -715,7 +690,7 @@ export const NAV: NavNode[] = [
     href: "/membership",
     index: "08",
     content: {
-      eyebrow: "Membership",
+      // eyebrow: "Membership",
       title: "Credit for the work ahead.",
       lead: "Deposit the minimum for a term. Extra credit is added to your wallet. Anything left unused expires when the membership ends.",
       layout: "wide",
@@ -780,7 +755,7 @@ export const NAV: NavNode[] = [
         content: {
           eyebrow: "Account",
           title: "Your place on the desk.",
-          lead: "The name and email on your orders.",
+          lead: "The name, email, and mobile number on your orders.",
           blocks: [{ type: "profile" }],
         },
       },
