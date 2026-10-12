@@ -5,6 +5,19 @@ export type OfferField = {
   options?: string[];
 };
 
+export type OfferGroup = {
+  label: string;
+  options: string[];
+  custom?: { label: string; placeholder: string };
+};
+
+export type OfferUpload = {
+  id: string;
+  label: string;
+  tag: string;
+  accept?: string;
+};
+
 export type ServiceOffer = {
   services: string[];
   ndeTitle?: string;
@@ -14,6 +27,10 @@ export type ServiceOffer = {
   quantityLabel?: string;
   quantityNote?: string;
   fields?: OfferField[];
+  groups?: OfferGroup[];
+  uploads?: OfferUpload[];
+  flatPrice?: boolean;
+  noteBeforeUploads?: boolean;
   noteLabel?: string;
   noteHint?: string;
 };
@@ -25,6 +42,7 @@ export type ServiceBrief = {
   price: string;
   time: string;
   days?: string;
+  video?: { poster: string; src?: string };
   offer?: ServiceOffer;
 };
 
