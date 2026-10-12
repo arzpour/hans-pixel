@@ -2,6 +2,7 @@ export type OfferField = {
   label: string;
   hint?: string;
   kind?: "text" | "number";
+  options?: string[];
 };
 
 export type ServiceOffer = {

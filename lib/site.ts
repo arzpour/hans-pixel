@@ -347,7 +347,8 @@ export const NAV: NavNode[] = [
                 },
                 {
                   label: "Album Size",
-                  hint: "Enter your preferred album size (e.g., 30 × 30 cm)",
+                  hint: "Choose your preferred album size from the available options.",
+                  options: ["8*12 in", "10*10 in", "10*12 in", "12*12 in", "12*16 in", "14*14 in", "16*20 in"],
                 },
               ],
               noteLabel: "Add your editing notes",

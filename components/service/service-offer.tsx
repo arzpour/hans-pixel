@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Upload } from "lucide-react";
+import { Check, ChevronDown, Upload } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
@@ -19,6 +19,17 @@ const outlineButton =
 
 const sectionTitle =
   "font-heading text-[length:var(--text-label)] font-semibold uppercase tracking-[0.14em] text-accent";
+
+function unitPrice(price: string) {
+  const match = price.replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+function formatDollars(amount: number) {
+  return `${(Math.round(amount * 100) / 100).toFixed(2)}$`;
+}
 
 type ChosenFile = {
   key: string;
@@ -89,6 +100,15 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
   const noteHint = offer.noteHint ?? "Tell us what you'd like to change or achieve with your image.";
   const returning = (priorCount ?? 0) > 0;
   const needsPayment = identity === "member" && returning && !paid;
+  const quantityText = quantity?.trim() ?? "";
+  const photoCount = Math.floor(Number(quantityText));
+  const quantityReady = quantityText !== "" && Number.isFinite(photoCount) && photoCount > 0;
+  const each = unitPrice(brief.price);
+  const payable = !offer.quantityLabel
+    ? each
+    : each == null || !quantityReady
+      ? null
+      : each * photoCount * (ndeOn ? 1.25 : 1);
 
   const orderNote = () => {
     const lines: string[] = [];
@@ -333,11 +353,45 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
         {offer.fields?.map((field, index) => {
           const fieldId = `${id}-field-${index}`;
           const hintId = `${fieldId}-hint`;
+          if (field.options?.length) {
+            return (
+              <div key={field.label} className="flex flex-col gap-1.5">
+                <label htmlFor={fieldId} className={fieldLabel}>
+                  {field.label}
+                </label>
+                {field.hint ? (
+                  <p id={hintId} className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
+                    {field.hint}
+                  </p>
+                ) : null}
+                <div className="relative max-w-md">
+                  <select
+                    id={fieldId}
+                    value={fields[field.label] ?? ""}
+                    aria-describedby={field.hint ? hintId : undefined}
+                    onChange={(event) => setFields((current) => ({ ...current, [field.label]: event.target.value }))}
+                    className={cn(fieldControl, "cursor-pointer appearance-none pr-10", focusRing)}
+                  >
+                    <option value="">Select a size</option>
+                    {field.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+            );
+          }
           return (
             <div key={field.label} className="flex flex-col gap-1.5">
-              <label htmlFor={fieldId} className={fieldLabel}>
+              {/* <label htmlFor={fieldId} className={fieldLabel}>
                 {field.label}
-              </label>
+              </label> */}
               <input
                 id={fieldId}
                 type={field.kind === "number" ? "number" : "text"}
@@ -346,13 +400,14 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
                 step={field.kind === "number" ? 1 : undefined}
                 value={fields[field.label] ?? ""}
                 aria-describedby={field.hint ? hintId : undefined}
+                placeholder={field.label}
                 onChange={(event) =>
                   setFields((current) => ({ ...current, [field.label]: event.target.value }))
                 }
                 className={cn(fieldControl, field.kind === "number" ? "w-28" : "max-w-md", focusRing)}
               />
               {field.hint ? (
-                <p id={hintId} className="max-w-[65ch] text-base leading-relaxed text-muted-foreground">
+                <p id={hintId} className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
                   {field.hint}
                 </p>
               ) : null}
@@ -481,9 +536,14 @@ export function ServiceOffer({ brief, serviceHref }: { brief: ServiceBrief; serv
             <p className="text-base leading-relaxed text-muted-foreground">Your first send is free.</p>
           ) : null}
           {needsPayment ? (
-            <button type="button" className={cn(primaryButton, focusRing)} onClick={() => setPaid(true)}>
-              Payment
-            </button>
+            <div className="flex flex-col items-start gap-2">
+              {payable != null ? (
+                <p className="font-heading text-[length:var(--text-lead)] text-foreground">{formatDollars(payable)}</p>
+              ) : null}
+              <button type="button" className={cn(primaryButton, focusRing)} onClick={() => setPaid(true)}>
+                Payment
+              </button>
+            </div>
           ) : null}
           {identity === "member" && priorCount !== null && !needsPayment ? (
             <button
