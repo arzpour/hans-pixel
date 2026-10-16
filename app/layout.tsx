@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, Space_Grotesk } from "next/font/google";
 import { Stage } from "@/components/layout/stage";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { OrdersProvider } from "@/providers/orders-provider";
 import { SessionProvider } from "@/providers/session-provider";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -56,9 +57,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="h-full overflow-hidden bg-background font-sans text-foreground">
         <SessionProvider>
-          {children}
-          <Stage />
-          <ServiceWorkerRegister />
+          <OrdersProvider>
+            {children}
+            <Stage />
+            <ServiceWorkerRegister />
+          </OrdersProvider>
         </SessionProvider>
       </body>
     </html>
