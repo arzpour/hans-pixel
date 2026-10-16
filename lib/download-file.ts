@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl, readError } from "@/lib/api";
 
 export function uploadDownloadPath(fileId: string) {
   return `/api/uploads/${fileId}/download`;
@@ -23,11 +23,6 @@ export function openDownload(href: string) {
   anchor.remove();
 }
 
-async function downloadError(response: Response) {
-  const data = (await response.json().catch(() => null)) as { error?: string } | null;
-  return data?.error ?? "Download failed.";
-}
-
 export async function downloadUpload(fileId: string, name: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const path = uploadDownloadPath(fileId);
   const href = apiUrl(path);
@@ -37,7 +32,7 @@ export async function downloadUpload(fileId: string, name: string): Promise<{ ok
       openDownload(href);
       return { ok: true };
     }
-    if (!response.ok) return { ok: false, error: await downloadError(response) };
+    if (!response.ok) return { ok: false, error: await readError(response, "Download failed.") };
     saveBlob(await response.blob(), name);
     return { ok: true };
   } catch {

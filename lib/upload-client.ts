@@ -1,24 +1,7 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, postJson, readError } from "@/lib/api";
 import type { OpenUpload, SignedPart, UploadTarget } from "@/types/upload";
 
 const STORAGE_PREFIX = "hans-pixel-upload:";
-
-async function readError(response: Response) {
-  const data = (await response.json().catch(() => null)) as { error?: unknown } | null;
-  if (data && typeof data.error === "string") return data.error;
-  return "The request failed.";
-}
-
-async function postJson<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await apiFetch(url, {
-    method: "POST",
-    headers: body === undefined ? undefined : { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
-  });
-  if (!response.ok) throw new Error(await readError(response));
-  return (await response.json()) as T;
-}
 
 function partByteLength(partNumber: number, size: number, partSize: number) {
   const start = (partNumber - 1) * partSize;
