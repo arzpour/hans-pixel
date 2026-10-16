@@ -1,11 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useId, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/providers/session-provider";
 import type { SessionUser } from "@/types/session";
-import { apiFetch } from "@/lib/api";
+import { submitJson } from "@/lib/api";
 import { cn, fieldControl, fieldLabel, focusRing, labelText, primaryButton } from "@/lib/cn";
 import { normalizeMobile } from "@/lib/mobile";
 
@@ -13,15 +13,18 @@ export function ProfilePanel() {
   const id = useId();
   const router = useRouter();
   const { user, status, logout, setSession, isAdmin } = useSession();
-  const [phone, setPhone] = useState("");
+  const serverPhone = user?.phone ?? "";
+  const [phone, setPhone] = useState(serverPhone);
+  const [seenPhone, setSeenPhone] = useState(serverPhone);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
-  useEffect(() => {
-    setPhone(user?.phone ?? "");
-  }, [user?.phone]);
+  if (user && seenPhone !== serverPhone) {
+    setSeenPhone(serverPhone);
+    setPhone(serverPhone);
+  }
 
   const onLogout = async () => {
     setLeaving(true);
@@ -40,19 +43,16 @@ export function ProfilePanel() {
     setBusy(true);
     setError(null);
     setSaved(false);
-    const response = await apiFetch("/api/auth/mobile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: mobile }),
+    const result = await submitJson<{ error?: string; user?: SessionUser; isAdmin?: boolean }>("/api/auth/mobile", {
+      phone: mobile,
     });
-    const data = (await response.json().catch(() => null)) as { error?: string; user?: SessionUser; isAdmin?: boolean } | null;
     setBusy(false);
-    if (!response.ok || !data?.user) {
-      setError(data?.error || "The mobile number could not be saved.");
+    if (!result.ok || !result.data.user) {
+      setError(result.ok ? result.data.error || "The mobile number could not be saved." : result.error);
       return;
     }
-    setPhone(data.user.phone ?? mobile);
-    setSession(data.user, Boolean(data.isAdmin ?? isAdmin));
+    setPhone(result.data.user.phone ?? mobile);
+    setSession(result.data.user, Boolean(result.data.isAdmin ?? isAdmin));
     setSaved(true);
   };
 

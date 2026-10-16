@@ -4,40 +4,40 @@ import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/providers/session-provider";
 import type { SessionUser } from "@/types/session";
-import { apiFetch } from "@/lib/api";
+import { submitJson } from "@/lib/api";
 import { cn, fieldControl, fieldLabel, focusRing, primaryButton } from "@/lib/cn";
 import { normalizeMobile } from "@/lib/mobile";
 
 const NAME_KEY = "hp-account-name";
 const PHONE_KEY = "hp-account-phone";
 
+type AuthDraft = {
+  mode: "in" | "up";
+  step: "form" | "code";
+  email: string;
+  name: string;
+  phone: string;
+  code: string;
+};
+
 function digits(value: string) {
   return value.replace(/\D/g, "").slice(0, 6);
-}
-
-async function postJson<T>(url: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
-  const response = await apiFetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = (await response.json().catch(() => null)) as ({ error?: string } & T) | null;
-  if (!response.ok) return { ok: false, error: data?.error || "The request failed." };
-  return { ok: true, data: data as T };
 }
 
 export function AuthPanel() {
   const id = useId();
   const { user, status, setSession } = useSession();
-  const [mode, setMode] = useState<"in" | "up">("in");
-  const [step, setStep] = useState<"form" | "code">("form");
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
+  const [draft, setDraft] = useState<AuthDraft>({ mode: "in", step: "form", email: "", name: "", phone: "", code: "" });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const { mode, step, email, name, phone, code } = draft;
+  const setMode = (next: AuthDraft["mode"]) => setDraft((current) => ({ ...current, mode: next }));
+  const setStep = (next: AuthDraft["step"]) => setDraft((current) => ({ ...current, step: next }));
+  const setEmail = (next: string) => setDraft((current) => ({ ...current, email: next }));
+  const setName = (next: string) => setDraft((current) => ({ ...current, name: next }));
+  const setPhone = (next: string) => setDraft((current) => ({ ...current, phone: next }));
+  const setCode = (next: string) => setDraft((current) => ({ ...current, code: next }));
   const busyRef = useRef(false);
   const triedCode = useRef("");
   const consumedLink = useRef(false);
@@ -54,7 +54,7 @@ export function AuthPanel() {
     busyRef.current = true;
     setBusy(true);
     setError(null);
-    const result = await postJson<{ user: SessionUser; isAdmin?: boolean }>("/api/auth/verify-code", {
+    const result = await submitJson<{ user: SessionUser; isAdmin?: boolean }>("/api/auth/verify-code", {
       email: nextEmail,
       code: nextCode,
       name: nextName || undefined,
@@ -84,10 +84,12 @@ export function AuthPanel() {
     const storedName = sessionStorage.getItem(NAME_KEY)?.trim() ?? "";
     const storedPhone = sessionStorage.getItem(PHONE_KEY)?.trim() ?? "";
     window.history.replaceState(null, "", "/account");
+    /* eslint-disable react-hooks/set-state-in-effect -- the emailed link is external input that has to land before verify */
     setEmail(mailedEmail);
     setCode(mailedCode);
     setStep("code");
     setNotice("The code from your email is in the field. Checking it now.");
+    /* eslint-enable react-hooks/set-state-in-effect */
     triedCode.current = mailedCode;
     void verify(mailedEmail, mailedCode, storedName, storedPhone);
     // verify is stable enough for this one-shot link; retried codes go through the field effect.
@@ -117,7 +119,7 @@ export function AuthPanel() {
       sessionStorage.removeItem(NAME_KEY);
       sessionStorage.removeItem(PHONE_KEY);
     }
-    const result = await postJson<{ devCode?: string }>(
+    const result = await submitJson<{ devCode?: string }>(
       "/api/auth/request-code",
       mode === "up" ? { email, name: name.trim(), phone: mobile } : { email },
     );
